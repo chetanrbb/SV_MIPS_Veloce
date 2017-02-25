@@ -21,9 +21,10 @@
 `ifndef _im
 `define _im
 
-module im #(parameter NMEM = 128;   			// Number of memory entries,
+module im #(parameter NMEM = 128,   			// Number of memory entries,
 												// not the same as the memory size
-			parameter IM_DATA = "im_data.txt";  // file to read data from)
+			parameter IM_DATA = "im_data.txt"  // file to read data from
+			)
 	(
 		input  logic	  	    clk,
 		input  logic  	[31:0] 	addr,
@@ -36,7 +37,8 @@ module im #(parameter NMEM = 128;   			// Number of memory entries,
 	
 	initial 
 	begin
-		$readmemh(IM_DATA, mem, 0, NMEM-1);
+	////////////////////////////ADD THIS INTO CODE LATER ///////////////////////////////////////////
+		//$readmemh(IM_DATA, mem, 0, NMEM-1);
 	end
 
 	

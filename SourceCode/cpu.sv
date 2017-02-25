@@ -31,6 +31,8 @@ module cpu
     #( //parameter string IM_DATA = "im_data.txt",
 	parameter NMEM = 20  // number in instruction memory
 	  
+  //  #( parameter NMEM = 20,  // number in instruction memory
+	//  parameter IM_DATA = "im_data.txt"
 	)
 	(
 		input wire clk
