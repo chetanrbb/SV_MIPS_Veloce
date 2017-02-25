@@ -15,22 +15,25 @@
  * established.
  */
 
-`include "regr.v"
-`include "im.v"
-`include "regm.v"
-`include "control.v"
-`include "alu.v"
-`include "alu_control.v"
-`include "dm.v"
+//`include "regr.sv"
+//`include "im.sv"
+//`include "regm.sv"
+//`include "control.sv"
+//`include "alu.sv"
+//`include "alu_control.sv"
+//`include "dm.sv"
 
 `ifndef DEBUG_CPU_STAGES
 `define DEBUG_CPU_STAGES 0
 `endif
 
-module cpu #(parameter NMEM = 20,  // number in instruction memory
-	parameter IM_DATA = "im_data.txt")
+module cpu 
+    #( //parameter string IM_DATA = "im_data.txt",
+	parameter NMEM = 20  // number in instruction memory
+	  
+	)
 	(
-		input logic clk
+		input wire clk
 	);
 
 	
@@ -56,9 +59,20 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 		end
 	end
 
-
-
+	logic [4:0] wrreg_s5;
+	logic regwrite_s5;
 	logic flush_s1, flush_s2, flush_s3;
+	logic stall_s1_s2;
+	logic pcsrc;
+	logic jump_s4;
+	logic [31:0] baddr_s4;
+	logic [31:0] jaddr_s4;
+	logic [31:0] fw_data2_s3;
+	logic [31:0] fw_data1_s3;
+	logic [31:0] alurslt_s4;
+	logic [31:0] wrdata_s5;
+	logic [1:0] forward_a;
+	
 	always_comb 
 	begin
 		flush_s1 <= 1'b0;
@@ -102,7 +116,8 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	// instruction memory
 	logic [31:0] inst;
 	logic [31:0] inst_s2;
-	im #(.NMEM(NMEM), .IM_DATA(IM_DATA))
+	im #(.NMEM(NMEM))
+//	.IM_DATA(IM_DATA))
 		im1(.clk(clk), .addr(pc), .data(inst));
 	regr #(.N(32)) regr_im_s2(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
@@ -174,6 +189,7 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	logic		regwrite;
 	logic		alusrc;
 	logic		jump_s2;
+	logic [1:0] forward_b;
 	//
 	control ctl1(.opcode(opcode), .regdst(regdst),
 				.branch_eq(branch_eq_s2), .branch_ne(branch_ne_s2),
@@ -248,7 +264,7 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	alu_control alu_ctl1(.funct(funct), .aluop(aluop_s3), .aluctl(aluctl));
 	// ALU
 	logic [31:0]	alurslt;
-	logic [31:0] fw_data1_s3;
+	
 	
 	always_comb
 		case (forward_a)
@@ -265,14 +281,14 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 					.in(zero_s3), .out(zero_s4));
 
 	// pass ALU result and zero to stage 4
-	logic [31:0]	alurslt_s4;
+	
 	regr #(.N(32)) reg_alurslt(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in({alurslt}),
 				.out({alurslt_s4}));
 
 	// pass data2 to stage 4
 	logic [31:0] data2_s4;
-	logic [31:0] fw_data2_s3;
+	
 	
 	always_comb
 		case (forward_b)
@@ -298,16 +314,16 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 				.in({branch_eq_s3, branch_ne_s3}),
 				.out({branch_eq_s4, branch_ne_s4}));
 
-	logic [31:0] baddr_s4;
+	
 	regr #(.N(32)) baddr_s3_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(baddr_s3), .out(baddr_s4));
 
-	logic jump_s4;
+
 	regr #(.N(1)) reg_jump_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(jump_s3),
 				.out(jump_s4));
 
-	logic [31:0] jaddr_s4;
+	
 	regr #(.N(32)) reg_jaddr_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(jaddr_s3), .out(jaddr_s4));
 	// }}}
@@ -315,7 +331,7 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	// {{{ stage 4, MEM (memory)
 
 	// pass regwrite and memtoreg to stage 5
-	logic regwrite_s5;
+	
 	logic memtoreg_s5;
 	regr #(.N(2)) reg_regwrite_s4(.clk(clk), .clear(1'b0), .hold(1'b0),
 				.in({regwrite_s4, memtoreg_s4}),
@@ -338,13 +354,13 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 				.out(alurslt_s5));
 
 	// pass wrreg to stage 5
-	logic [4:0] wrreg_s5;
+	
 	regr #(.N(5)) reg_wrreg_s4(.clk(clk), .clear(1'b0), .hold(1'b0),
 				.in(wrreg_s4),
 				.out(wrreg_s5));
 
 	// branch
-	logic pcsrc;
+	
 	always_comb 
 	begin
 		case (1'b1)
@@ -357,7 +373,7 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 			
 	// {{{ stage 5, WB (write back)
 
-	logic [31:0]	wrdata_s5;
+	
 	assign wrdata_s5 = (memtoreg_s5 == 1'b1) ? rdata_s5 : alurslt_s5;
 
 	// }}}
@@ -367,8 +383,8 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	// stage 3 (MEM) -> stage 2 (EX)
 	// stage 4 (WB) -> stage 2 (EX)
 
-	logic [1:0] forward_a;
-	logic [1:0] forward_b;
+	
+	
 	
 	always_comb 
 	begin
@@ -410,15 +426,15 @@ module cpu #(parameter NMEM = 20,  // number in instruction memory
 	 *   lw  $1, 16($3)  ; I-type, rt_s3 = $1, memread_s3 = 1
 	 *   add $2, $1, $1  ; R-type, rs_s2 = $1, rt_s2 = $1, memread_s2 = 0
 	 */
-	logic stall_s1_s2;
+	
 	always_comb 
 	begin
 		if (memread_s3 == 1'b1 && ((rt == rt_s3) || (rs == rt_s3)) ) 
 		begin
-			stall_s1_s2 <= 1'b1;  // perform a stall
+			stall_s1_s2 = 1'b1;  // perform a stall
 		end 
 		else
-			stall_s1_s2 <= 1'b0;  // no stall
+			stall_s1_s2 = 1'b0;  // no stall
 	end
 	// }}}
 
