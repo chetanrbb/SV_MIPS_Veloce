@@ -15,20 +15,22 @@
  * established.
  */
 
-`include "regr.v"
-`include "im.v"
-`include "regm.v"
-`include "control.v"
-`include "alu.v"
-`include "alu_control.v"
-`include "dm.v"
+//`include "regr.sv"
+//`include "im.sv"
+//`include "regm.sv"
+//`include "control.sv"
+//`include "alu.sv"
+//`include "alu_control.sv"
+//`include "dm.sv"
 
 `ifndef DEBUG_CPU_STAGES
 `define DEBUG_CPU_STAGES 0
 `endif
 
-module cpu #(parameter NMEM = 20,  // number in instruction memory
-	parameter IM_DATA = "im_data.txt")
+module cpu 
+    #( parameter NMEM = 20,  // number in instruction memory
+	  parameter IM_DATA = "im_data.txt"
+	)
 	(
 		input logic clk
 	);

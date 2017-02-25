@@ -7,8 +7,19 @@
 `ifndef _alu_control
 `define _alu_control
 
-`include AluCtrlSig_pkg.h
+//`include AluCtrlSig_pkg.h
 
+package AluCtrlSig_pkg;
+	typedef enum logic [3:0] {
+		ADD = 4'd02,
+		SUB = 4'd00, 
+		AND = 4'd10, 
+		NOR = 4'd12, 
+		OR  = 4'd01, 
+		SLT = 4'd07, 
+		XOR = 4'd13
+	} AluOp_t;
+endpackage
 
 module alu_control(
 		input logic  [5:0] funct,
@@ -17,30 +28,30 @@ module alu_control(
 
 	import AluCtrlSig_pkg::*;
 	
-	AluCtrlSig_t AluCtrlSig;
+	AluOp_t AluCtrlSig;
 	
 	logic [3:0] _funct;
 
 	always_comb 
 	begin
 		unique case(funct[3:0])
-			ADD:  _funct = 4'd2;		// add 
-			SUB:  _funct = 4'd6;		// sub 
-			OR:   _funct = 4'd1;		// or 
-			XOR:  _funct = 4'd13;		// xor 
-			NOR:  _funct = 4'd12;		// nor 
-			SLT:  _funct = 4'd7;		// slt 
-			default: _funct = 4'd0;
+			ADD:  _funct <= 4'd2;		// add 
+			SUB:  _funct <= 4'd6;		// sub 
+			OR:   _funct <= 4'd1;		// or 
+			XOR:  _funct <= 4'd13;		// xor 
+			NOR:  _funct <= 4'd12;		// nor 
+			SLT:  _funct <= 4'd7;		// slt 
+			default: _funct <= 4'd0;
 		endcase
 	end
 
 	always_comb begin
 		case(aluop)
-			2'd0: aluctl = 4'd2;	/* add */
-			2'd1: aluctl = 4'd6;	/* sub */
-			2'd2: aluctl = _funct;
-			2'd3: aluctl = 4'd2;	/* add */
-			default: aluctl = 0;
+			2'd0: aluctl <= 4'd2;	/* add */
+			2'd1: aluctl <= 4'd6;	/* sub */
+			2'd2: aluctl <= _funct;
+			2'd3: aluctl <= 4'd2;	/* add */
+			default: aluctl <= 0;
 		endcase
 	end
 
