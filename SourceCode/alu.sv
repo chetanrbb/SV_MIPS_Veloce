@@ -23,7 +23,7 @@ module alu(
 	enum logic [3:0] {
 		ADD = 4'd02, 
 		SUB = 4'd00, 
-		AND = 4'd00, 
+		AND = 4'd10, 
 		NOR = 4'd12, 
 		OR  = 4'd01, 
 		SLT = 4'd07, 
