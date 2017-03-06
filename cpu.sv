@@ -28,7 +28,7 @@
 `endif
 
 module cpu 
-    #( parameter string IM_DATA = "im_data.txt",
+    #( //parameter string IM_DATA = "im_data.txt",
 	parameter NMEM_T = 20  // number in instruction memory
 	  
 	)
