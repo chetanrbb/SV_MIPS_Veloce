@@ -28,16 +28,27 @@
 `endif
 
 module cpu 
-    #( //parameter string IM_DATA = "im_data.txt",
-	parameter NMEM = 20  // number in instruction memory
+    #( parameter string IM_DATA = "im_data.txt",
+	parameter NMEM_T = 20  // number in instruction memory
 	  
-  //  #( parameter NMEM = 20,  // number in instruction memory
-	//  parameter IM_DATA = "im_data.txt"
 	)
 	(
 		input wire clk
 	);
 
+	logic [4:0] wrreg_s5;
+	logic regwrite_s5;
+	logic flush_s1, flush_s2, flush_s3;
+	logic stall_s1_s2;
+	logic pcsrc;
+	logic jump_s4;
+	logic [31:0] baddr_s4;
+	logic [31:0] jaddr_s4;
+	logic [31:0] fw_data2_s3;
+	logic [31:0] fw_data1_s3;
+	logic [31:0] alurslt_s4;
+	logic [31:0] wrdata_s5;
+	logic [1:0] forward_a;
 	
 	initial 
 	begin
@@ -61,19 +72,7 @@ module cpu
 		end
 	end
 
-	logic [4:0] wrreg_s5;
-	logic regwrite_s5;
-	logic flush_s1, flush_s2, flush_s3;
-	logic stall_s1_s2;
-	logic pcsrc;
-	logic jump_s4;
-	logic [31:0] baddr_s4;
-	logic [31:0] jaddr_s4;
-	logic [31:0] fw_data2_s3;
-	logic [31:0] fw_data1_s3;
-	logic [31:0] alurslt_s4;
-	logic [31:0] wrdata_s5;
-	logic [1:0] forward_a;
+
 	
 	always_comb 
 	begin
@@ -90,10 +89,10 @@ module cpu
 
 	// {{{ stage 1, IF (fetch)
 
-	logic  [31:0] pc;
-	initial begin
-		pc <= 32'd0;
-	end
+	logic  [31:0] pc = 32'b0;
+	//initial begin
+	//	pc <= 32'd0;
+	//end
 
 	logic [31:0] pc4;  // PC + 4
 	assign pc4 = pc + 4;
@@ -118,7 +117,7 @@ module cpu
 	// instruction memory
 	logic [31:0] inst;
 	logic [31:0] inst_s2;
-	im #(.NMEM(NMEM))
+	im #(.NMEM(NMEM_T))
 //	.IM_DATA(IM_DATA))
 		im1(.clk(clk), .addr(pc), .data(inst));
 	regr #(.N(32)) regr_im_s2(.clk(clk),
