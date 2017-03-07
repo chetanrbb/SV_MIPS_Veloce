@@ -1,0 +1,92 @@
+Introduction
+~~~~~~~~~~~
+This example illustrates a testcase that can be compiled and simulated
+using TestBench-Express. In this testcase HDL side is a simple ALU 
+
+Note that Puresim mode uses Questa (compiles C Code with vlog)
+Files/Directories:
+~~~~~~~~~~~~~~~~~~
+
+  README                      : This file
+  vfiles.f                    : verilog files list
+  v_files                     : Contains verilog files
+  c_files                     : Contains .cxx file for the test
+  tbx.config                  : config file, used to convey commands 
+                                to TestBench-Express.
+
+Partitioning of Design:
+~~~~~~~~~~~~~~~~~~~~~~~
+In XRTL mode, modules can either be XRTL or RTL. All modules are assumed
+RTL by default. For specifying XRTL modules, partition commands need to
+be given in configuration file.
+
+The partition command used in this example in config file is:
+
+  rtlc -partition_module_xrtl testbench
+
+The only other module in this example is the design-under-test 'dut', and
+is implicitly partitioned as RTL.
+  
+Example description
+~~~~~~~~~~~~~~~~~~~
+This example illustrates usage of following constructs:
+    * imported tasks
+    * clock generator
+    * reset generator
+    * $finish
+    * implicit-style-state machine
+
+Testbench
+~~~~~~~~~
+Testbench makes use of the following XRTL modeling elements:
+
+a) HDL-to-C SV-DPI tasks:
+
+    import "DPI-C" task reset_completed ();
+    import "DPI-C" task SendDataToSoftware (input bit [31:0] data1);
+    import "DPI-C" task GetDataFromSoftware (output bit [31:0] data1,
+                                             output bit [31:0] data2);
+
+  Keyword "import" directs the TBX compiler to import these tasks from 
+  the C side. Definition of these tasks are provided in C. These tasks are 
+  called from the HDL testbench.
+
+b) Clock/Reset generators:
+
+        // tbx clkgen
+        initial
+        begin
+            clk = 0;
+            #7;
+            forever
+            begin
+                clk = 1;
+                #5;
+                clk = 0;
+                #5;
+            end
+        end
+
+  The tbx pragma directs the XRTL-compiler to give special treatment to this 
+  block. The same pragma can be used to specify reset generator block as well.
+  TBX automatically finds out which is clock generator and which is not.
+
+  The following reset generator is used:
+
+        // tbx clkgen
+        initial
+        begin
+            reset = 0;
+            #10 reset = 1;
+        end
+
+c) $finish: 
+
+    // tbx clkgen
+    initial
+    begin
+        #1000;
+        $finish;
+    end
+
+                               ---------------
