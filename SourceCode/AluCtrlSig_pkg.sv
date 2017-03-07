@@ -1,4 +1,4 @@
-
+`timescale 1ns / 10ps
 `ifndef ALU_PKG
 `define ALU_PKG
 
