@@ -27,6 +27,9 @@ module dm(
 
 	reg [31:0] mem [0:127];  // 32-bit memory with 128 entries
 
+    initial
+        foreach(mem[i]) mem[i][31:0] = '1; 
+	
 	assign rdata = wr ? wdata : mem[addr][31:0];  // During a write, avoid the one cycle delay by reading from 'wdata'
 	
 	
@@ -36,8 +39,6 @@ module dm(
 			mem[addr] <= wdata;
 		end
 	end
-
-	
 
 endmodule
 

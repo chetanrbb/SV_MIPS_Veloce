@@ -7,19 +7,19 @@
 `ifndef _alu_control
 `define _alu_control
 
-//`include AluCtrlSig_pkg.h
+`include "AluCtrlSig_pkg.sv"
 
-package AluCtrlSig_pkg;
-	typedef enum logic [3:0] {
-		ADD = 4'd02,
-		SUB = 4'd00, 
-		AND = 4'd10, 
-		NOR = 4'd12, 
-		OR  = 4'd01, 
-		SLT = 4'd07, 
-		XOR = 4'd13
-	} AluOp_t;
-endpackage
+//package AluCtrlSig_pkg;
+//	typedef enum logic [3:0] {
+//		ADD = 4'd02,
+//		SUB = 4'd00, 
+//		AND = 4'd10, 
+//		NOR = 4'd12, 
+//		OR  = 4'd01, 
+//		SLT = 4'd07, 
+//		XOR = 4'd13
+//	} AluOp_t;
+//endpackage
 
 module alu_control(
 		input logic  [5:0] funct,
@@ -41,7 +41,7 @@ module alu_control(
 			XOR:  _funct <= 4'd13;		// xor 
 			NOR:  _funct <= 4'd12;		// nor 
 			SLT:  _funct <= 4'd7;		// slt 
-			default: _funct <= 4'd0;
+			default: _funct <= 4'd0;    // And
 		endcase
 	end
 

@@ -28,12 +28,15 @@
 `endif
 
 module cpu 
-    #( parameter string IM_DATA = "im_data.txt",
-	parameter NMEM_T = 20  // number in instruction memory
+//    #(
+//    //parameter string IM_DATA = "im_data.txt",
+//	parameter NMEM_T = 20  // number in instruction memory
 	  
-	)
+//	)
 	(
-		input wire clk
+		input wire clk,
+		input logic [31:0] inst,
+		output logic [31:0] pc
 	);
 
 	logic [4:0] wrreg_s5;
@@ -49,6 +52,14 @@ module cpu
 	logic [31:0] alurslt_s4;
 	logic [31:0] wrdata_s5;
 	logic [1:0] forward_a;
+	logic [31:0] alusrc_data2;
+	logic [31:0] data1, data2;
+	logic [31:0] data1_s3, data2_s3;
+    logic [3:0] aluctl;
+    logic [5:0] funct;
+	logic [31:0] data2_s4;
+    logic memread_s4;
+    logic memwrite_s4;
 	
 	initial 
 	begin
@@ -115,11 +126,12 @@ module cpu
 						.in(pc4), .out(pc4_s2));
 
 	// instruction memory
-	logic [31:0] inst;
+//	logic [31:0] inst;
 	logic [31:0] inst_s2;
-	im #(.NMEM(NMEM_T))
-//	.IM_DATA(IM_DATA))
-		im1(.clk(clk), .addr(pc), .data(inst));
+//	im #(.NMEM(NMEM_T))
+////	.IM_DATA(IM_DATA))
+//		im1(.clk(clk), .addr(pc), .data(inst));
+
 	regr #(.N(32)) regr_im_s2(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
 						.in(inst), .out(inst_s2));
@@ -148,7 +160,7 @@ module cpu
 	assign seimm 	= {{16{inst_s2[15]}}, inst_s2[15:0]};
 
 	// register memory
-	logic [31:0] data1, data2;
+//	logic [31:0] data1, data2;
 	regm regm1(.clk(clk), .read1(rs), .read2(rt),
 			.data1(data1), .data2(data2),
 			.regwrite(regwrite_s5), .wrreg(wrreg_s5),
@@ -160,7 +172,7 @@ module cpu
 				.in(rs), .out(rs_s3));
 
 	// transfer register data to stage 3
-	logic [31:0]	data1_s3, data2_s3;
+//	logic [31:0]	data1_s3, data2_s3;
 	regr #(.N(64)) reg_s2_mem(.clk(clk), .clear(flush_s2), .hold(stall_s1_s2),
 				.in({data1, data2}),
 				.out({data1_s3, data2_s3}));
@@ -246,8 +258,8 @@ module cpu
 	// pass through some control signals to stage 4
 	logic regwrite_s4;
 	logic memtoreg_s4;
-	logic memread_s4;
-	logic memwrite_s4;
+//	logic memread_s4;
+//	logic memwrite_s4;
 	regr #(.N(4)) reg_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in({regwrite_s3, memtoreg_s3, memread_s3,
 						memwrite_s3}),
@@ -256,11 +268,11 @@ module cpu
 
 	// ALU
 	// second ALU input can come from an immediate value or data
-	logic [31:0] alusrc_data2;
+//	logic [31:0] alusrc_data2;
 	assign alusrc_data2 = (alusrc_s3) ? seimm_s3 : fw_data2_s3;
 	// ALU control
-	logic [3:0] aluctl;
-	logic [5:0] funct;
+//	logic [3:0] aluctl;
+//	logic [5:0] funct;
 	assign funct = seimm_s3[5:0];
 	alu_control alu_ctl1(.funct(funct), .aluop(aluop_s3), .aluctl(aluctl));
 	// ALU
@@ -288,7 +300,7 @@ module cpu
 				.out({alurslt_s4}));
 
 	// pass data2 to stage 4
-	logic [31:0] data2_s4;
+//	logic [31:0] data2_s4;
 	
 	
 	always_comb
