@@ -1,3 +1,4 @@
+`timescale 1ns / 10ps
 `ifndef _control
 `define _control
 
@@ -47,7 +48,7 @@ module control(
 				 alusrc   = 1'b1;
 				 end
 			ADDI_op: begin	/* addi */
-				 regdst   = 1'b0;
+				 regdst   = 1'b1;
 				 aluop[1] = 1'b0;
 				 alusrc   = 1'b1;
 				 end

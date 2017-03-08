@@ -1,4 +1,4 @@
-
+`timescale 1ns / 10ps
 // call the alu control operation 
 // the function parameter will store the operation to be conducted 
 // the aluop parameter will decide the opeation to be done directly or to be done from the funciton block 

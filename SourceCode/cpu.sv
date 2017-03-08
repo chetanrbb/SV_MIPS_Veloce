@@ -14,18 +14,19 @@
  * be at the stage at which the variable is first
  * established.
  */
-
-//`include "regr.sv"
-//`include "im.sv"
-//`include "regm.sv"
-//`include "control.sv"
-//`include "alu.sv"
-//`include "alu_control.sv"
-//`include "dm.sv"
-
+ 
+`timescale 1ns / 10ps
 `ifndef DEBUG_CPU_STAGES
 `define DEBUG_CPU_STAGES 0
 `endif
+
+`include "regr.sv"
+`include "regm.sv"
+//`include "control.sv"
+//`include "dm.sv"
+//`include "alu.sv"
+//`include "alu_control.sv"
+//`include "AluCtrlSig_pkg.sv"
 
 module cpu 
 //    #(
@@ -34,9 +35,9 @@ module cpu
 	  
 //	)
 	(
-		input wire clk,
+		input wire clk, reset,
 		input logic [31:0] inst,
-		output logic [31:0] pc
+		output logic [31:0] pc = '0
 	);
 
 	logic [4:0] wrreg_s5;
@@ -90,7 +91,7 @@ module cpu
 		flush_s1 <= 1'b0;
 		flush_s2 <= 1'b0;
 		flush_s3 <= 1'b0;
-		if (pcsrc | jump_s4) begin
+		if (pcsrc | jump_s4 | reset) begin
 			flush_s1 <= 1'b1;
 			flush_s2 <= 1'b1;
 			flush_s3 <= 1'b1;
@@ -98,9 +99,12 @@ module cpu
 	end
 	// }}}
 
-	// {{{ stage 1, IF (fetch)
-
-	logic  [31:0] pc = 32'b0;
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+	// stage 1, IF (fetch)
+    //
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+//	logic  [31:0] pc = 32'b0;
 	//initial begin
 	//	pc <= 32'd0;
 	//end
@@ -127,20 +131,26 @@ module cpu
 
 	// instruction memory
 //	logic [31:0] inst;
-	logic [31:0] inst_s2;
+	logic [31:0] inst_s2, inst_temp;;
 //	im #(.NMEM(NMEM_T))
 ////	.IM_DATA(IM_DATA))
 //		im1(.clk(clk), .addr(pc), .data(inst));
-
-	regr #(.N(32)) regr_im_s2(.clk(clk),
+    
+    regr #(.N(32)) regr_im_s2(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
-						.in(inst), .out(inst_s2));
+						.in(inst), .out(inst_temp));
+						
+	regr #(.N(32)) regr_im_s1(.clk(clk),
+						.hold(stall_s1_s2), .clear(flush_s1),
+						.in(inst_temp), .out(inst_s2));
 
 	// }}}
 
-	// {{{ stage 2, ID (decode)
-
+    ////////////////////////////////////////////////////////////////////////////
+	// stage 2, ID (decode)
+    ////////////////////////////////////////////////////////////////////////////
 	// decode instruction
+	
 	logic [5:0]  opcode;
 	logic [4:0]  rs;
 	logic [4:0]  rt;
@@ -190,8 +200,11 @@ module cpu
 	logic [31:0] pc4_s3;
 	regr #(.N(32)) reg_pc4_s2(.clk(clk), .clear(1'b0), .hold(stall_s1_s2),
 						.in(pc4_s2), .out(pc4_s3));
-
+    
+    ///////////////////////////////////////////////////////////////////////////////////
 	// control (opcode -> ...)
+	///////////////////////////////////////////////////////////////////////////////////
+	
 	logic		regdst;
 	logic		branch_eq_s2;
 	logic		branch_ne_s2;
@@ -253,13 +266,15 @@ module cpu
 				.in(jaddr_s2), .out(jaddr_s3));
 	// }}}
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
 	// {{{ stage 3, EX (execute)
-
+    /////////////////////////////////////////////////////////////////////////////////////////////
 	// pass through some control signals to stage 4
 	logic regwrite_s4;
 	logic memtoreg_s4;
 //	logic memread_s4;
 //	logic memwrite_s4;
+
 	regr #(.N(4)) reg_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in({regwrite_s3, memtoreg_s3, memread_s3,
 						memwrite_s3}),

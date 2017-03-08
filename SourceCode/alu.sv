@@ -1,4 +1,4 @@
-
+`timescale 1ns / 10ps
 /////////////////////////////////////////////////////////////////////////
 // This module will take the inputs of a and b and do the operaiton as per the control signals given to it. 
 // IF the result of the operaiton is zero then the zero flag is set else the output of the operation is 
