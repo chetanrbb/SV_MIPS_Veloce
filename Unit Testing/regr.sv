@@ -1,4 +1,3 @@
-`timescale 1ns / 10ps
 /*
  * NAME
  *
@@ -29,7 +28,7 @@
 `ifndef _regr
 `define _regr
 
-module regr #(parameter N = 1)
+module regr #(parameter N = 8)
 (
 	input logic  clk,
 	input logic  clear,

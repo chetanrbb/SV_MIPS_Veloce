@@ -16,7 +16,7 @@
  * cycle delay.
  *
  */
-
+`timescale 1ns / 10ps
 `ifndef _regm
 `define _regm
 
@@ -34,6 +34,9 @@ module regm(
 
 	logic [31:0] mem [0:31];  // 32-bit memory with 32 entries
 
+    initial
+        foreach(mem[i]) mem[i][31:0] = '1;
+        
 	logic [31:0] _data1, _data2;
 
 	assign data1 = _data1;
