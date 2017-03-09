@@ -7,7 +7,7 @@
 `ifndef _alu_control
 `define _alu_control
 
-`include "AluCtrlSig_pkg.sv"
+//`include "AluCtrlSig_pkg.sv"
 
 //package AluCtrlSig_pkg;
 //	typedef enum logic [3:0] {
