@@ -20,13 +20,6 @@
 `define DEBUG_CPU_STAGES 0
 `endif
 
-`include "regr.sv"
-`include "regm.sv"
-//`include "control.sv"
-//`include "dm.sv"
-//`include "alu.sv"
-//`include "alu_control.sv"
-//`include "AluCtrlSig_pkg.sv"
 
 module cpu 
 //    #(
@@ -131,18 +124,18 @@ module cpu
 
 	// instruction memory
 //	logic [31:0] inst;
-	logic [31:0] inst_s2, inst_temp;;
+	logic [31:0] inst_s2;
 //	im #(.NMEM(NMEM_T))
 ////	.IM_DATA(IM_DATA))
 //		im1(.clk(clk), .addr(pc), .data(inst));
     
-    regr #(.N(32)) regr_im_s2(.clk(clk),
-						.hold(stall_s1_s2), .clear(flush_s1),
-						.in(inst), .out(inst_temp));
+//    regr #(.N(32)) regr_im_s2(.clk(clk),
+//						.hold(stall_s1_s2), .clear(flush_s1),
+//						.in(inst), .out(inst_temp));
 						
 	regr #(.N(32)) regr_im_s1(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
-						.in(inst_temp), .out(inst_s2));
+						.in(inst), .out(inst_s2));
 
 	// }}}
 
@@ -355,9 +348,10 @@ module cpu
 	regr #(.N(32)) reg_jaddr_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(jaddr_s3), .out(jaddr_s4));
 	// }}}
-
+    
+    //////////////////////////////////////////////////////////////////////
 	// {{{ stage 4, MEM (memory)
-
+    //////////////////////////////////////////////////////////////////////
 	// pass regwrite and memtoreg to stage 5
 	
 	logic memtoreg_s5;

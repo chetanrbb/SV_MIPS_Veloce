@@ -48,7 +48,7 @@ module control(
 				 alusrc   = 1'b1;
 				 end
 			ADDI_op: begin	/* addi */
-				 regdst   = 1'b1;
+				 regdst   = 1'b0;
 				 aluop[1] = 1'b0;
 				 alusrc   = 1'b1;
 				 end
@@ -72,7 +72,7 @@ module control(
 				 end
 			ADD_op: begin	/* add */
 				 end
-			JMP_op: begin	/* j jump */
+			J_op: begin	/* j jump */
 				 jump = 1'b1;
 				 end
 		endcase
