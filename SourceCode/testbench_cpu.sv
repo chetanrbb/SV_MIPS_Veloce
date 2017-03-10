@@ -27,9 +27,10 @@ module testbench_cpu;
     logic [31:0] inst;
     logic clk = 0, reset = 0;
     logic [31:0] pc;
+    logic [31:0] instr_arr[10];
     
     //internal
-    logic [31:0] register_v1, register_v0, register_t1, register_t0;
+    logic [31:0] register_v1, register_v0, register_t1, register_t0, register_t3;
     logic [31:0] inst_s2, pc4_s2, pc4, data1_s3, data2_s3, pc4_s3;
 //    logic [31:0] inst_temp;
     logic [4:0] rs_s2, rt_s2, rs_s3, rt_s3;
@@ -73,7 +74,7 @@ module testbench_cpu;
     assign register_v1 = dut.regm1.mem[v1];
     assign register_t0 = dut.regm1.mem[t0];
     assign register_t1 = dut.regm1.mem[t1];
-    
+    assign register_t3 = dut.regm1.mem[t3];
 //    assign inst_temp= dut.inst_temp;
     assign rs_s2    = dut.rs;
     assign opcode   = dut.opcode;
@@ -146,39 +147,46 @@ module testbench_cpu;
         #5 clk = ~clk;
     
     initial begin
-        
+        $readmemb("instr_mem.txt", instr_arr);
+		
+		repeat(10) @(posedge clk) inst = instr_arr[pc/4];
+		@(posedge clk) inst = 'z;
+		
+		// sub $v1, $v0, $t0: t0 = v1-v0
 //        @(negedge clk) reset = 1'b1;
 //        @(negedge clk) reset = 1'b0;               
 //        repeat(1) @(posedge clk); 
         
         //SUB: Opcode + rs + rt +rd + shamt + funct
 //        repeat(2) @(posedge clk);
-        @(posedge clk) inst = {6'd0, v0, v0, v0, 11'd06};
-//        @(posedge clk) inst = 'z;
-//        repeat(5) @(posedge clk);
-        @(posedge clk) inst = {6'd0, v1, v1, v1, 11'd06};
-//        repeat(5) @(posedge clk);
-        // ADDI: Opcode + rs + rt + imm 
+//        @(posedge clk) inst = {6'd0, v0, v0, v0, 11'd06};
+////        @(posedge clk) inst = 'z;
+////        repeat(5) @(posedge clk);
+//        @(posedge clk) inst = {6'd0, v1, v1, v1, 11'd06};
+////        repeat(5) @(posedge clk);
+//        // ADDI: Opcode + rs + rt + imm 
         
-        // Insert value 20 into register v0
-        @(posedge clk) inst = {ADDI_op, v0, v0, 16'd10};
-        // Insert value 20 into register v1 
-        @(posedge clk) inst = {ADDI_op, v1, v1,16'd20};
-        //t0 = v0 - v1 
-        @(posedge clk) inst = {6'd0, v1, v0, t0, 11'd6};
-        // Clear t1 register
-        @(posedge clk) inst = {6'd0, t1, t1, t1, 11'd06};
-        //
-        //  Eg.: sw $2, 32($1)  ; I-type, rt_s2 = $2, rs_s2 = $1, memread_s2 = 0
-        //  sw $rt, offset($rs)
-        //  rt = t0, rs = t1
-        @(posedge clk) inst = {SW_op, t1, t0, 16'h0003C};
-        // Clear t3 register
-//        @(posedge clk) inst = {6'd0, t3, t3, t3, 11'd06};
-        //  lw  $1, 16($3)  ; I-type, rt_s3 = $1, memread_s3 = 1
-        @(posedge clk) inst = {LW_op, t1, v1, 16'h0003C};
-        @(posedge clk) inst = 'z; 
-        repeat(5) @(posedge clk);
+//        // Insert value 20 into register v0
+//        @(posedge clk) inst = {ADDI_op, v0, v0, 16'd10};
+//        // Insert value 20 into register v1 
+//        @(posedge clk) inst = {ADDI_op, v1, v1,16'd20};
+//        //t0 = v0 - v1 
+//        @(posedge clk) inst = {6'd0, v1, v0, t0, 11'd6};
+//        // Clear t1 register
+//        @(posedge clk) inst = {6'd0, t1, t1, t1, 11'd06};
+//        //
+//        //  Eg.: sw $2, 32($1)  ; I-type, rt_s2 = $2, rs_s2 = $1, memread_s2 = 0
+//        //  sw $rt, offset($rs)
+//		  //  sw $t0, 0x3C($t1)
+//        //  rt = t0, rs = t1
+//        @(posedge clk) inst = {SW_op, t1, t0, 16'h0003C};
+//        // Clear t3 register
+////        @(posedge clk) inst = {6'd0, t3, t3, t3, 11'd06};
+//        //  lw  $1, 16($3)  ; I-type, rt_s3 = $1, memread_s3 = 1
+//		  //  lw v1, 0x3C($t1)	 
+//        @(posedge clk) inst = {LW_op, t1, v1, 16'h0003C};
+//        @(posedge clk) inst = 'z; 
+//        repeat(5) @(posedge clk);
            
          $stop;
                     
