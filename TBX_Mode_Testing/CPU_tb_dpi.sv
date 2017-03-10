@@ -21,8 +21,8 @@ logic OprDnFlg 	= 0;			// Flag will be set by the CPU module when the operation 
 int ResultOfOprFlg = 0;		// This flag will indicate if the previous operation was a success or a failure. It will be set by the checker or the CPU module
 int PC;
 int instr = '0;
-
-
+logic [31:0] cnt = 0;
+logic En = '0;
 
 // Import the functions from the CPU_tb.cxx file
 import "DPI-C" pure function void ResetOpr();
@@ -34,11 +34,13 @@ import "DPI-C" pure function void OperationComplete();
 // Variables for Checker module 
 //logic InstrOvr = 0;		// Instruction Over flag will be set when the Instruction memory is over 
 
+ccheck inf (.clk);
+
 // Instantiate the module: CPU
-cpu CPU_tb(.clk, .reset(resetH), .pc(PC), .inst(instr));		// InstrOvr is not used for now 
+cpu CPU_tb(.clk, .reset(resetH), .pcEn(En), .pc(PC), .inst(instr), .B(inf));		// InstrOvr is not used for now 
 
 // Instantiate the module Checker 
-//Checker checker_tb(.clk, .instr, .OprDnFlg);
+checker checker_tb(.A(inf), .inst(instr), .pcEn(En), .OpDone(OprDnFlg));
 
 // Initial Conditions
 // tbx clkgen
@@ -54,28 +56,41 @@ initial
 begin
 	resetH = 1;			// activate the reset signal 
 	#20 resetH = 0;		// deactivate the reset signal 
-end 
+//end 
 
-initial 
-begin
-	@(posedge clk);
+//initial 
+//begin
+	//@(posedge clk);
 	while (resetH) @ (posedge clk);
 	ResetOpr();			// call for the reset operation which will display the message on the console
 end
 
-always @ (posedge clk)
+always @ (*)
 begin
 	if(resetH == 0)		// run the logic when there is no reset 
 	begin
+		En = 1'b1;
 		// 1. Read the instruction from the memory 
 		// This will read the instruction stored in the instruction memory as per the PC count 
 		@(posedge clk);
 		instr = GetInstrFmMem(PC);
-		$display("%d", instr);
+		$display("%x", instr);
 		$display("Done with the getting of the instruction function\n");
+		
+		//@(posedge clk);
+		//instr = GetInstrFmMem(PC);
+		//$display("%x", instr);
+		//$display("Done with the getting of the instruction function\n");
+		
+		if(cnt < 10)
+			cnt <= cnt+1;
+		else
+		begin
+			OprDnFlg <= 1;
+			
 		// 2. Wait till the operation from the CPU and the checker is over 
 		//while (!OprDnFlg)
-		//@ (posedge clk);
+		//	@ (posedge clk);
 			
 		// 3. If the Instruction memory is over then call the Operation complete 
 		// 	  else if the instruction memory is not over then Send the data to the HVL to be displayed on the console. 
@@ -90,6 +105,7 @@ begin
 			$display("Done with the Sending the result of instruction \n");
 		//end
 		$finish;
+		end
 	end
 
 end
