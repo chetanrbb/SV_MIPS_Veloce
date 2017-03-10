@@ -14,7 +14,7 @@
 #include <iostream>
 using namespace std;
 
-#include "tbxbindings.h"
+#include "cpuTest.h"
 #include "svdpi.h"
 #include "stdio.h"
 
@@ -24,32 +24,28 @@ static unsigned int InstrMemArr[100];	// store the instruction that are to be co
 static unsigned int ErrorCnt = 0;		// counter for the error 
 static unsigned int SuccsCnt = 0;		// counter for the success 
 
-int ResetOpr()
+void ResetOpr()
 {
 	printf("The reset signal is asserted \n Resetting .... \n");
-	printf("Starting the CPU...");
-	return 0;
+	printf("Starting the CPU...\n");
 }
 
-int GetInstrFmMem(svBitVecVal* instr, svBitVecVal* PC)
+int GetInstrFmMem(int PC)
 {
-	*instr = InstrMemArr[*PC];		// send the instruction stored in the memory 
-	return 0;	
+	//return (InstrMemArr[(PC)/4]);		// send the instruction stored in the memory 
+	return 100;
 }
 
-int SendResOfProc(svBitVecVal* ResultOfOprFlg)
+void SendResOfProc(int ResultOfOprFlg)
 {
-	printf("Operation was: %s", *ResultOfOprFlg?("YES"):("NO"));
-	*ResultOfOprFlg ? (SuccsCnt++) : (ErrorCnt++);
-	
-	return 0;
+	printf("Operation was: %s", ResultOfOprFlg?("YES"):("NO"));
+	ResultOfOprFlg ? (SuccsCnt++) : (ErrorCnt++);
 }
 
-int OperationComplete()
+void OperationComplete()
 {
 	printf("The CPU operation is Over....\n");
-	printf("Successful Operations: %d, Unsuccessful Operations: %d", SuccsCnt, ErrorCnt);
-	return 0;
+	printf("Successful Operations: %d, Unsuccessful Operations: %d\n", SuccsCnt, ErrorCnt);
 }
 
 
