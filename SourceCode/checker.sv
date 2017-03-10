@@ -32,6 +32,7 @@ import AluCtrlSig_pkg::*;
 module check(  
                 ccheck.M A,
                 input logic [31:0] inst,
+                input clk,
                 input logic pcEn,
                 output logic OpDone                  
             );
@@ -43,10 +44,14 @@ module check(
      logic flag =0;
      logic [31:0] data1, data2;
      logic [31:0] out_data,out_data_1,out_data_f;
+     
+     
+     //////changes
+     logic [4:0] rs,rt;
             
-     always_ff @ (posedge A.clk) begin
-//        A.rs = '0;
-//        A.rt = '0;
+     always_ff @ (posedge clk) begin
+//        rs = '0;
+//        rt = '0;
 //        shamt = '0;
 //        funct = '0;
         if (pcEn == 1'b1) begin
@@ -55,14 +60,14 @@ module check(
             unique case (opcode) 
             
                 LW_op: begin
-                        A.rs   = inst [25:21];
-                        A.rt   = inst [20:16];
+                        rs   = inst [25:21];
+                        rt   = inst [20:16];
                         addr   = inst [15:0];            
                        end
                        
                 SW_op: begin
-                        A.rs   = inst [25:21];
-                        A.rt   = inst [20:16];
+                        rs   = inst [25:21];
+                        rt   = inst [20:16];
                         addr   = inst [15:0];            
                        end       
                 
@@ -71,40 +76,40 @@ module check(
                         end
                         
                 BEQ_op: begin
-                         A.rs   = inst [25:21];
-                         A.rt   = inst [20:16];
+                         rs   = inst [25:21];
+                         rt   = inst [20:16];
                          addr   = inst [15:0]; 
                         end
                 
                 BNE_op: begin
-                         A.rs   = inst [25:21];
-                         A.rt   = inst [20:16];
+                         rs   = inst [25:21];
+                         rt   = inst [20:16];
                          addr   = inst [15:0]; 
                         end        
                 
                 ADDI_op: begin
-                          A.rs  = inst [25:21];
-                          A.rt  = inst [20:16];
+                          rs  = inst [25:21];
+                          rt  = inst [20:16];
                           imm   = inst [15:0];  
                          end
                          
                 ADD_op: begin
-                         A.rs    = inst [25:21];
-                         A.rt    = inst [20:16];          
+                         rs    = inst [25:21];
+                         rt    = inst [20:16];          
                          rd      = inst [15:11];
                          shamt   = inst [10:6];
                          funct   = inst [5:0];      
                         end
                  default: begin 
-                            A.rs = '0;
-                            A.rt = '0;
+                            rs = '0;
+                            rt = '0;
                             shamt = '0;
                             funct = '0;
                           end            
             endcase
           end
           
-         else begin end 
+//         else begin end 
        end
         
 //        always_ff @(A.rs_value) begin
@@ -117,7 +122,7 @@ module check(
             opcode_1 <= opcode;         
         end
         
-        always_ff @(posedge A.clk)  begin
+        always_ff @(posedge clk)  begin
             funct_1 <= funct;
             funct_2 <= funct_1;
         end
@@ -146,31 +151,29 @@ module check(
                end
                else if (opcode_1 == ADDI_op ) out_data = A.rt_value + A.rs_value;
                else if (opcode_1 == J_op) out_data = jaddr;
-               else if (opcode_1 == BNE_op) if ( A.rs != A.rt) out_data = addr;  
-               else if (opcode_1 == BEQ_op) if ( A.rs == A.rt) out_data = addr;  
+               else if (opcode_1 == BNE_op) if ( rs != rt) out_data = addr;  
+               else if (opcode_1 == BEQ_op) if ( rs == rt) out_data = addr;  
     //           else if (opcode_1 == LW_op)
                else out_data = out_data;
                    
-    //               end
-            end  
-            else begin end
-        end        
-//       always_ff @(posedge A.clk) begin
+               end
+            end         
+//       always_ff @(posedge clk) begin
 //          out_data_f <= out_data;
 //          //out_data_f <= out_data_1;
 //       end      
         
-        always begin
+        always @(*) begin
             if (pcEn == 1'b1) begin
                 OpDone = 1'b0;
-                @(posedge A.clk);
-                @(posedge A.clk);
-                @(posedge A.clk) begin
+                @(posedge clk);
+                @(posedge clk);
+                @(posedge clk) begin
                     if (out_data == A.rd_value) OpDone = 1'b1;
                     else OpDone = 1'b0;
                 end
-                @(posedge A.clk) OpDone = 1'b0;
-                @(posedge A.clk);     
+                @(posedge clk) OpDone = 1'b0;
+                @(posedge clk);     
             end
             else begin 
                 OpDone = 1'b0; 

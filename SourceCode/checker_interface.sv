@@ -20,17 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-interface ccheck (input logic clk);
+interface ccheck ();
 
     logic [31:0] rs_value,rt_value,rd_value,pc;
-    logic [4:0] rs,rt,rd;
+//    logic [4:0] rs,rt,rd;
     
 
 
     modport H
     (
-        input rs,
-        input rt,
+//        input rs,
+//        input rt,
         output rs_value,
         output rt_value,
         output rd_value,
@@ -42,10 +42,11 @@ interface ccheck (input logic clk);
         input rs_value,
         input rt_value,
         input rd_value, 
-        input pc,
-        input clk,
-        output rs,
-        output rt       
+        input pc
+        //input clk,
+//        output rs,
+//        output rt       
 
     );
+    
 endinterface: ccheck
