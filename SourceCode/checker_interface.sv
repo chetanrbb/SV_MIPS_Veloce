@@ -43,7 +43,6 @@ interface ccheck (input logic clk);
         input rt_value,
         input rd_value, 
         input pc,
-        input clk,
         output rs,
         output rt       
 

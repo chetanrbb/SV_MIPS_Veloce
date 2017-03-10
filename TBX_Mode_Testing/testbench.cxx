@@ -25,7 +25,16 @@ static unsigned int InstrMemArr[100];	// store the instruction that are to be co
 static unsigned int ErrorCnt = 0;		// counter for the error 
 static unsigned int SuccsCnt = 0;		// counter for the success 
 static unsigned int Instr_bin = 0;
-static unsigned int instrMem[10] = {0x00421022,
+
+static unsigned int instrMem[10] = {
+0b00000000010000100001000000100010,
+0b00000000011000110001100000100010,
+0b00100000010000100000000000001010,
+0b00100000011000110000000000010100,
+0b00000000011000100100000000100010,
+00000001001010010100100000100010};
+
+/*static unsigned int instrMem[10] = {0x00421022,
 									0x00631822,
 									0x2042000A,
 									0x20630014,
@@ -36,6 +45,7 @@ static unsigned int instrMem[10] = {0x00421022,
 									0x20630014,
 									0x00624022
 									};
+*/
 
 void ResetOpr()
 {

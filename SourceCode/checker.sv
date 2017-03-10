@@ -27,15 +27,18 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-import AluCtrlSig_pkg::*;
+
 
 module check(  
                 ccheck.M A,
+				input logic clk,
                 input logic [31:0] inst,
                 input logic pcEn,
                 output logic OpDone                  
             );
-     
+
+import AluCtrlSig_pkg::*;
+			
      logic [5:0] opcode,opcode_1,opcode_2,funct,funct_1,funct_2;
      logic [4:0] rd,shamt;
      logic [15:0] addr,imm;
@@ -44,7 +47,7 @@ module check(
      logic [31:0] data1, data2;
      logic [31:0] out_data,out_data_1,out_data_f;
             
-     always_ff @ (posedge A.clk) begin
+     always_ff @ (posedge clk) begin
 //        A.rs = '0;
 //        A.rt = '0;
 //        shamt = '0;
@@ -117,7 +120,7 @@ module check(
             opcode_1 <= opcode;         
         end
         
-        always_ff @(posedge A.clk)  begin
+        always_ff @(posedge clk)  begin
             funct_1 <= funct;
             funct_2 <= funct_1;
         end
@@ -155,7 +158,7 @@ module check(
             end  
             else begin end
         end        
-//       always_ff @(posedge A.clk) begin
+//       always_ff @(posedge clk) begin
 //          out_data_f <= out_data;
 //          //out_data_f <= out_data_1;
 //       end      
@@ -163,14 +166,14 @@ module check(
         always begin
             if (pcEn == 1'b1) begin
                 OpDone = 1'b0;
-                @(posedge A.clk);
-                @(posedge A.clk);
-                @(posedge A.clk) begin
+                @(posedge clk);
+                @(posedge clk);
+                @(posedge clk) begin
                     if (out_data == A.rd_value) OpDone = 1'b1;
                     else OpDone = 1'b0;
                 end
-                @(posedge A.clk) OpDone = 1'b0;
-                @(posedge A.clk);     
+                @(posedge clk) OpDone = 1'b0;
+                @(posedge clk);     
             end
             else begin 
                 OpDone = 1'b0; 
