@@ -33,6 +33,7 @@ module check(
                 ccheck.M A,
 				input logic clk,
                 input logic [31:0] inst,
+                input clk,
                 input logic pcEn,
                 output logic OpDone                  
             );
@@ -46,10 +47,19 @@ import AluCtrlSig_pkg::*;
      logic flag =0;
      logic [31:0] data1, data2;
      logic [31:0] out_data,out_data_1,out_data_f;
+     
+     
+     //////changes
+     logic [4:0] rs,rt;
             
      always_ff @ (posedge clk) begin
+<<<<<<< HEAD
 //        A.rs = '0;
 //        A.rt = '0;
+=======
+//        rs = '0;
+//        rt = '0;
+>>>>>>> origin/master
 //        shamt = '0;
 //        funct = '0;
         if (pcEn == 1'b1) begin
@@ -58,14 +68,14 @@ import AluCtrlSig_pkg::*;
             unique case (opcode) 
             
                 LW_op: begin
-                        A.rs   = inst [25:21];
-                        A.rt   = inst [20:16];
+                        rs   = inst [25:21];
+                        rt   = inst [20:16];
                         addr   = inst [15:0];            
                        end
                        
                 SW_op: begin
-                        A.rs   = inst [25:21];
-                        A.rt   = inst [20:16];
+                        rs   = inst [25:21];
+                        rt   = inst [20:16];
                         addr   = inst [15:0];            
                        end       
                 
@@ -74,40 +84,40 @@ import AluCtrlSig_pkg::*;
                         end
                         
                 BEQ_op: begin
-                         A.rs   = inst [25:21];
-                         A.rt   = inst [20:16];
+                         rs   = inst [25:21];
+                         rt   = inst [20:16];
                          addr   = inst [15:0]; 
                         end
                 
                 BNE_op: begin
-                         A.rs   = inst [25:21];
-                         A.rt   = inst [20:16];
+                         rs   = inst [25:21];
+                         rt   = inst [20:16];
                          addr   = inst [15:0]; 
                         end        
                 
                 ADDI_op: begin
-                          A.rs  = inst [25:21];
-                          A.rt  = inst [20:16];
+                          rs  = inst [25:21];
+                          rt  = inst [20:16];
                           imm   = inst [15:0];  
                          end
                          
                 ADD_op: begin
-                         A.rs    = inst [25:21];
-                         A.rt    = inst [20:16];          
+                         rs    = inst [25:21];
+                         rt    = inst [20:16];          
                          rd      = inst [15:11];
                          shamt   = inst [10:6];
                          funct   = inst [5:0];      
                         end
                  default: begin 
-                            A.rs = '0;
-                            A.rt = '0;
+                            rs = '0;
+                            rt = '0;
                             shamt = '0;
                             funct = '0;
                           end            
             endcase
           end
           
-         else begin end 
+//         else begin end 
        end
         
 //        always_ff @(A.rs_value) begin
@@ -149,21 +159,26 @@ import AluCtrlSig_pkg::*;
                end
                else if (opcode_1 == ADDI_op ) out_data = A.rt_value + A.rs_value;
                else if (opcode_1 == J_op) out_data = jaddr;
-               else if (opcode_1 == BNE_op) if ( A.rs != A.rt) out_data = addr;  
-               else if (opcode_1 == BEQ_op) if ( A.rs == A.rt) out_data = addr;  
+               else if (opcode_1 == BNE_op) if ( rs != rt) out_data = addr;  
+               else if (opcode_1 == BEQ_op) if ( rs == rt) out_data = addr;  
     //           else if (opcode_1 == LW_op)
                else out_data = out_data;
                    
+<<<<<<< HEAD
     //               end
             end  
             else begin end
         end        
+=======
+               end
+            end         
+>>>>>>> origin/master
 //       always_ff @(posedge clk) begin
 //          out_data_f <= out_data;
 //          //out_data_f <= out_data_1;
 //       end      
         
-        always begin
+        always @(*) begin
             if (pcEn == 1'b1) begin
                 OpDone = 1'b0;
                 @(posedge clk);
