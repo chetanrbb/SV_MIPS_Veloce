@@ -1,56 +1,18 @@
-xor R6, R6, R6
-xor R9, R9, R9
-xor Rj, Rj, Rj
-add Rj, Rj, #008
-ldr R1, 004(R6)
-xor Rc, Rc, Rc
-add Rc, Rc, #008
-ldr R2, 008(R6)
-ldr R3, 012(R6)
-ldr R4, 016(R6)
-ldr K1, 132(R5)
-mul R1, R1, K1
-ldr K1, 136(R5)
-adm R2, R2, K1
-ldr K1, 140(R5)
-adm R3, R3, K1
-ldr K1, 144(R5)
-mul R4, R4, K1
-xor R7, R1, R3
-xor R8, R2, R4
-ldr K1, 148(R5)
-mul R7, R7, K1
-adm R8, R8, R7
-ldr K1, 152(R5)
-mul R8, R8, K1
-adm R7, R7, R8
-xor R1, R1, R8
-xor R3, R3, R8
-xor R2, R2, R7
-xor R4, R4, R7
-sub Rc, Rc, #001
-bz  156
-xor Rt, Rt, Rt
-add Rt, R2, R3
-sub R2, Rt, R2
-sub R3, Rt, R3
-add R5, R5, #006
-jr  044
-xor R5, R5, R5
-ldr K2, 324(R5)
-mul R1, R1, K2
-ldr K2, 328(R5)
-adm R2, R2, K2
-ldr K2, 332(R5)
-adm R3, R3, K2
-ldr K2, 336(R5)
-mul R4, R4, K2
-str R1, 340(R9)
-str R2, 344(R9)
-str R3, 348(R9)
-str R4, 352(R9)
-add R9, R9, #004
-add R6, R6, #004
-sub Rj, Rj, #001
-bnz 020
-hlt
+sub $v0, $v0, $v0
+sub $v1, $v1, $v1
+addi $v0, $v0, 0xA
+addi $v1, $v1, 0x14
+sub $v1, $v0, $t0
+sub $t1, $t1, $t1
+sw $t0, 0x3C($t1)
+sub $t3, $t3, $t3
+lw $v1, 0x3c($t1)
+add $v1, $v0, $t3
+xor $t4, $t4, $t4
+xor $t6, $t6, $t6
+xor $t5, $t5, $t5
+addi $t4, $t4, 0x20
+addi $t5, $t5, 0x16
+and $t4, $t5, $t6
+nor $t5, $t6, $t7
+ 

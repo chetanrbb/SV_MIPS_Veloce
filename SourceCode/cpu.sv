@@ -49,7 +49,7 @@ module cpu
 	logic [31:0] alusrc_data2;
 	logic [31:0] data1, data2;
 	logic [31:0] data1_s3, data2_s3;
-    logic [3:0] aluctl;
+    logic [5:0] aluctl;
     logic [5:0] funct;
 	logic [31:0] data2_s4;
     logic memread_s4;
@@ -279,7 +279,7 @@ module cpu
 //	logic [31:0] alusrc_data2;
 	assign alusrc_data2 = (alusrc_s3) ? seimm_s3 : fw_data2_s3;
 	// ALU control
-//	logic [3:0] aluctl;
+//	logic [5:0] aluctl;
 //	logic [5:0] funct;
 	assign funct = seimm_s3[5:0];
 	alu_control alu_ctl1(.funct(funct), .aluop(aluop_s3), .aluctl(aluctl));
