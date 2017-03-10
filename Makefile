@@ -20,17 +20,19 @@ endif
 
 compile:
 ifeq ($(MODE),puresim)
-	vlog hdl/booth_fsm.sv hdl/booth_tb_dpi.sv -dpiheader tbxbindings.h 
-	vlog hvl/testbench.cxx 
+	vlog -dpiheader cpuTest.h SourceCode/cpu.sv SourceCode/alu.sv SourceCode/alu_control.sv SourceCode/AluCtrlSig_pkg.sv SourceCode/control.sv SourceCode/dm.sv SourceCode/regm.sv SourceCode/regr.sv TBX_Mode_Testing/CPU_tb_dpi.sv 
+	vlog TBX_Mode_Testing/testbench.cxx 
 else
-	velanalyze hdl/booth_fsm.sv hdl/booth_tb_dpi.sv
+	velanalyze SourceCode/cpu.sv SourceCode/alu.sv SourceCode/alu_control.sv SourceCode/control.sv SourceCode/dm.sv SourceCode/regm.sv SourceCode/regr.sv 
+	velanalyze TBX_Mode_Testing/CPU_tb_dpi.sv
+	
 	#Note that the testbench.cxx file is passed to velcomp in veloce.config file. That way it knows this is the CoModel and compiles, then later runs on workstation
 	velcomp
 endif
                                                            
 run:
 ifeq ($(MODE),puresim)
-	vsim -c booth_tb_dpi -do "run -all" | tee transcript.puresim
+	vsim -c CPU_tb_dpi -do "run -all" | tee transcript.puresim
 else
 	velrun $(RUNTIME_OPTS) | tee transcript.veloce
 endif
