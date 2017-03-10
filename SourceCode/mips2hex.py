@@ -65,7 +65,7 @@ def convert(code):
         # print("Function type: I-Type")
         # print("Instruction form: opcode|          immediate           ")
         # print("Formatted binary: " + opcode+"|"+imm)
-        binary = "0b"+opcode+imm
+        binary = opcode+imm
         # print("Binary:           " + binary)
         # hex_string = '{0:08x}'.format(int(binary, base=2))
         # print("Hex:              0x" + hex_string)        
