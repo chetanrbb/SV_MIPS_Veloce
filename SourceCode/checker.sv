@@ -33,7 +33,6 @@ module check(
                 ccheck.M A,
 				input logic clk,
                 input logic [31:0] inst,
-                input clk,
                 input logic pcEn,
                 output logic OpDone                  
             );
@@ -53,13 +52,11 @@ import AluCtrlSig_pkg::*;
      logic [4:0] rs,rt;
             
      always_ff @ (posedge clk) begin
-<<<<<<< HEAD
+
 //        A.rs = '0;
 //        A.rt = '0;
-=======
 //        rs = '0;
 //        rt = '0;
->>>>>>> origin/master
 //        shamt = '0;
 //        funct = '0;
         if (pcEn == 1'b1) begin
@@ -164,15 +161,10 @@ import AluCtrlSig_pkg::*;
     //           else if (opcode_1 == LW_op)
                else out_data = out_data;
                    
-<<<<<<< HEAD
     //               end
             end  
-            else begin end
         end        
-=======
-               end
-            end         
->>>>>>> origin/master
+                        
 //       always_ff @(posedge clk) begin
 //          out_data_f <= out_data;
 //          //out_data_f <= out_data_1;

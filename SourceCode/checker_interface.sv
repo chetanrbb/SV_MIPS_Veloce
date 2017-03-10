@@ -42,16 +42,10 @@ interface ccheck ();
         input rs_value,
         input rt_value,
         input rd_value, 
-<<<<<<< HEAD
-        input pc,
-        output rs,
-        output rt       
-=======
         input pc
         //input clk,
 //        output rs,
 //        output rt       
->>>>>>> origin/master
 
     );
     

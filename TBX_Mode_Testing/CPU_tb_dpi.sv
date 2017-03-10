@@ -34,7 +34,7 @@ import "DPI-C" pure function void OperationComplete();
 // Variables for Checker module 
 //logic InstrOvr = 0;		// Instruction Over flag will be set when the Instruction memory is over 
 
-ccheck inf (.clk(clk));
+ccheck inf ();
 
 // Instantiate the module: CPU
 cpu CPU_tb(.clk(clk), .reset(resetH), .pcEn(En), .pc(PC), .inst(instr), .B(inf));		// InstrOvr is not used for now 
