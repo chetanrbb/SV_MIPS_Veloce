@@ -27,34 +27,30 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+import AluCtrlSig_pkg::*;
 
 module check(  
                 ccheck.M A,
-				input logic clk,
                 input logic [31:0] inst,
+                input clk,
                 input logic pcEn,
                 output logic OpDone                  
             );
-
-import AluCtrlSig_pkg::*;
-			
-     logic [5:0] opcode,opcode_1,opcode_2,funct,funct_1,funct_2;
+     
+     logic [5:0] opcode,opcode_1,opcode_2,opcode_3,funct,funct_1,funct_2;
      logic [4:0] rd,shamt;
      logic [15:0] addr,imm;
      logic [25:0] jaddr;
+     logic [31:0] jaddr_check;
      logic flag =0;
      logic [31:0] data1, data2;
-     logic [31:0] out_data,out_data_1,out_data_f;
-     
+     logic [31:0] out_data;//,out_data_1,out_data_f;
+     logic pcEn_1,pcEn_2,pcEn_3, opDone_1,opDone_2,j_flag;
      
      //////changes
      logic [4:0] rs,rt;
             
      always_ff @ (posedge clk) begin
-
-//        A.rs = '0;
-//        A.rt = '0;
 //        rs = '0;
 //        rt = '0;
 //        shamt = '0;
@@ -65,51 +61,52 @@ import AluCtrlSig_pkg::*;
             unique case (opcode) 
             
                 LW_op: begin
-                        rs   = inst [25:21];
-                        rt   = inst [20:16];
-                        addr   = inst [15:0];            
+                        rs   <= inst [25:21];
+                        rt   <= inst [20:16];
+                        addr   <= inst [15:0];            
                        end
                        
                 SW_op: begin
-                        rs   = inst [25:21];
-                        rt   = inst [20:16];
-                        addr   = inst [15:0];            
+                        rs   <= inst [25:21];
+                        rt   <= inst [20:16];
+                        addr   <= inst [15:0];            
                        end       
                 
                 J_op: begin
-                         jaddr = inst [25:0];
+                         jaddr <= inst [25:0];                        
                         end
                         
                 BEQ_op: begin
-                         rs   = inst [25:21];
-                         rt   = inst [20:16];
-                         addr   = inst [15:0]; 
+                         rs   <= inst [25:21];
+                         rt   <= inst [20:16];
+                         addr   <= inst [15:0]; 
                         end
                 
                 BNE_op: begin
-                         rs   = inst [25:21];
-                         rt   = inst [20:16];
-                         addr   = inst [15:0]; 
+                         rs   <= inst [25:21];
+                         rt   <= inst [20:16];
+                         addr   <= inst [15:0]; 
                         end        
                 
                 ADDI_op: begin
-                          rs  = inst [25:21];
-                          rt  = inst [20:16];
-                          imm   = inst [15:0];  
+                          rs  <= inst [25:21];
+                          rt  <= inst [20:16];
+                          imm   <= inst [15:0];  
                          end
                          
                 ADD_op: begin
-                         rs    = inst [25:21];
-                         rt    = inst [20:16];          
-                         rd      = inst [15:11];
-                         shamt   = inst [10:6];
-                         funct   = inst [5:0];      
+                         rs    <= inst [25:21];
+                         rt    <= inst [20:16];          
+                         rd      <= inst [15:11];
+                         shamt   <= inst [10:6];
+                         funct   <= inst [5:0];      
                         end
                  default: begin 
-                            rs = '0;
-                            rt = '0;
-                            shamt = '0;
-                            funct = '0;
+                            rs <= '1;
+                            rt <= '1;
+                            shamt <= '1;
+                            funct <= '1;
+                            opcode <= '1;
                           end            
             endcase
           end
@@ -123,13 +120,21 @@ import AluCtrlSig_pkg::*;
 //        $display("Rd value %d", A.rd_value);
 //        end
             
-       always_ff @( A.rs_value) begin
-            opcode_1 <= opcode;         
+       always_ff @( posedge clk) begin
+            opcode_1 <= opcode; 
+            opcode_3 <= opcode_1;
+            opcode_2 <= opcode_3;        
         end
         
         always_ff @(posedge clk)  begin
             funct_1 <= funct;
             funct_2 <= funct_1;
+            pcEn_1 <= pcEn;
+            pcEn_3 <= pcEn_1;
+            pcEn_2 <= pcEn_3;
+            opDone_2 <= opDone_1;
+            OpDone <= opDone_2;
+            jaddr_check <= {4'b0000, jaddr,2'b00};
         end
         
 //        ADD = 4'd02, 
@@ -142,48 +147,47 @@ import AluCtrlSig_pkg::*;
         
         
         always_comb begin
-            if(pcEn == 1) begin
-               if (opcode_1 == ADD_op) begin
-                   if(funct_2 == 'd2) out_data = A.rs_value + A.rt_value;
-                   else if(funct_2 == 'd0) out_data = A.rs_value & A.rt_value;
-                   else if (funct_2 == 06) out_data = A.rs_value - A.rt_value;
-                   else if (funct_2 == 'd1) out_data= A.rs_value | A.rt_value;
-                   else if (funct_2 == 'd12) begin out_data = A.rs_value | A.rt_value;
-                                                out_data = ~out_data;
-                                          end
-                   else if (funct_2 == 'd7) out_data = A.rs_value < A.rt_value? 1:0;
-                   else if (funct_2 == 'd13) out_data = A.rs_value ^ A.rt_value;
+            if(pcEn_2 == 1) begin
+               if (opcode_2 == ADD_op) begin
+                   if(funct_2 == ADD) out_data = A.rs_value + A.rt_value;
+                   else if(funct_2 == AND) out_data = A.rs_value & A.rt_value;
+                   else if (funct_2 == SUB) out_data = A.rs_value - A.rt_value;
+                   else if (funct_2 == OR) out_data= A.rs_value | A.rt_value;
+                   else if (funct_2 == NOR) begin 
+                        out_data = A.rs_value | A.rt_value;
+                        out_data = ~out_data;
+                   end
+                   else if (funct_2 == SLT) out_data = A.rs_value < A.rt_value? 1:0;
+                   else if (funct_2 == XOR) out_data = A.rs_value ^ A.rt_value;
                end
-               else if (opcode_1 == ADDI_op ) out_data = A.rt_value + A.rs_value;
-               else if (opcode_1 == J_op) out_data = jaddr;
-               else if (opcode_1 == BNE_op) if ( rs != rt) out_data = addr;  
-               else if (opcode_1 == BEQ_op) if ( rs == rt) out_data = addr;  
-    //           else if (opcode_1 == LW_op)
-               else out_data = out_data;
+               else if (opcode_2 == ADDI_op ) out_data = A.rt_value + A.rs_value;
+               else if (opcode_2 == J_op) out_data = A.rd_value;
+               else if (opcode_2 == BNE_op) begin 
+                    if ( A.rs_value != A.rt_value) out_data = addr;
+                    else out_data <= '1;
+               end       
+               else if (opcode_2 == BEQ_op) begin
+                    if ( A.rs_value == A.rt_value) out_data = addr;
+                    else out_data = '1;
+               end       
+               else if (opcode_2 == 6'b111111) out_data = '1; 
+               //else if (opcode_2 == LW_op) if( A.j_address == jaddr_check) j_flag = A.rd_v;
+               else out_data = '1;
                    
-    //               end
-            end  
-        end        
-                        
+               end
+            end         
 //       always_ff @(posedge clk) begin
 //          out_data_f <= out_data;
 //          //out_data_f <= out_data_1;
 //       end      
         
         always @(*) begin
-            if (pcEn == 1'b1) begin
-                OpDone = 1'b0;
-                @(posedge clk);
-                @(posedge clk);
-                @(posedge clk) begin
-                    if (out_data == A.rd_value) OpDone = 1'b1;
-                    else OpDone = 1'b0;
-                end
-                @(posedge clk) OpDone = 1'b0;
-                @(posedge clk);     
-            end
+            if (pcEn_2 == 1'b1) begin
+                    if (out_data == A.rd_value) opDone_1 = 1'b1;
+                    else opDone_1 = 1'b0;
+                end                              
             else begin 
-                OpDone = 1'b0; 
+                opDone_1 = 1'b0; 
             end
          end   
 endmodule

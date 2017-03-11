@@ -23,7 +23,7 @@ ifeq ($(MODE),puresim)
 	vlog -dpiheader cpuTest.h SourceCode/cpu.sv SourceCode/alu.sv SourceCode/alu_control.sv SourceCode/AluCtrlSig_pkg.sv SourceCode/control.sv SourceCode/dm.sv SourceCode/regm.sv SourceCode/regr.sv TBX_Mode_Testing/CPU_tb_dpi.sv SourceCode/checker.sv SourceCode/checker_interface.sv
 	vlog TBX_Mode_Testing/testbench.cxx 
 else
-	velanalyze SourceCode/cpu.sv SourceCode/alu.sv SourceCode/alu_control.sv SourceCode/control.sv SourceCode/dm.sv SourceCode/regm.sv SourceCode/checker.sv SourceCode/checker_interface.sv SourceCode/regr.sv 
+	velanalyze SourceCode/cpu.sv SourceCode/alu.sv SourceCode/alu_control.sv SourceCode/control.sv SourceCode/dm.sv SourceCode/regm.sv SourceCode/checker.sv SourceCode/checker_interface.sv SourceCode/regr.sv SourceCode/regm.sv
 	velanalyze TBX_Mode_Testing/CPU_tb_dpi.sv
 	
 	#Note that the testbench.cxx file is passed to velcomp in veloce.config file. That way it knows this is the CoModel and compiles, then later runs on workstation
