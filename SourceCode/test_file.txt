@@ -4,15 +4,3 @@ addi $v0, $v0, 0xA
 addi $v1, $v1, 0x14
 sub $v1, $v0, $t0
 sub $t1, $t1, $t1
-sw $t0, 0x3C($t1)
-sub $t3, $t3, $t3
-lw $v1, 0x3c($t1)
-add $v1, $v0, $t3
-xor $t4, $t4, $t4
-xor $t6, $t6, $t6
-xor $t5, $t5, $t5
-addi $t4, $t4, 0x20
-addi $t5, $t5, 0x16
-and $t4, $t5, $t6
-nor $t5, $t6, $t7
- 
