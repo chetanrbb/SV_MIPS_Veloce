@@ -11,11 +11,8 @@
 `ifndef _alu
 `define _alu
 
-/*`include "rc_adder.v"*/
-
-
 module alu(
-		input  logic	[3:0]	ctl,
+		input  logic	[5:0]	ctl,
 		input  logic 	[31:0]	a, b,
 		output logic	[31:0]	out,
 		output logic 			zero

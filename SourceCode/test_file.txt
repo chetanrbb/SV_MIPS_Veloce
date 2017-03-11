@@ -1,0 +1,6 @@
+sub $v0, $v0, $v0
+sub $v1, $v1, $v1
+addi $v0, $v0, 0xA
+addi $v1, $v1, 0x14
+sub $v1, $v0, $t0
+sub $t1, $t1, $t1

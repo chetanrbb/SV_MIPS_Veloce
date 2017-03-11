@@ -20,13 +20,6 @@
 `define DEBUG_CPU_STAGES 0
 `endif
 
-`include "regr.sv"
-`include "regm.sv"
-//`include "control.sv"
-//`include "dm.sv"
-//`include "alu.sv"
-//`include "alu_control.sv"
-//`include "AluCtrlSig_pkg.sv"
 
 module cpu 
 //    #(
@@ -37,7 +30,9 @@ module cpu
 	(
 		input wire clk, reset,
 		input logic [31:0] inst,
-		output logic [31:0] pc = '0
+		output logic [31:0] pc = '0,
+		ccheck.H B,
+		input logic pcEn
 	);
 
 	logic [4:0] wrreg_s5;
@@ -56,11 +51,13 @@ module cpu
 	logic [31:0] alusrc_data2;
 	logic [31:0] data1, data2;
 	logic [31:0] data1_s3, data2_s3;
-    logic [3:0] aluctl;
+    logic [5:0] aluctl;
     logic [5:0] funct;
 	logic [31:0] data2_s4;
     logic memread_s4;
     logic memwrite_s4;
+	
+	assign B.pc = pc;
 	
 	initial 
 	begin
@@ -110,19 +107,30 @@ module cpu
 	//end
 
 	logic [31:0] pc4;  // PC + 4
-	assign pc4 = pc + 4;
+	assign pc4 = B.pc + 4;
 
 	always_ff @(posedge clk) begin
-		if (stall_s1_s2) 
-			pc <= pc;
-		else if (pcsrc == 1'b1)
-			pc <= baddr_s4;
-		else if (jump_s4 == 1'b1)
-			pc <= jaddr_s4;
-		else
-			pc <= pc4;
-	end
-
+	   if (pcEn) begin
+            if (stall_s1_s2) 
+                pc <= pc;
+                
+            //////////////////////////////////////////
+            // Chnages made: Harsh Momaya
+            // 3/10/2017- 3:22 PM
+            //////////////////////////////////////////	
+            else if (pcsrc == 1'b1) begin
+                if (baddr_s4 == '0) pc <= baddr_s4;
+                else pc <= baddr_s4 - 3'b100;
+            end
+            else if (jump_s4 == 1'b1) begin
+                if (jaddr_s4 == '0) pc <= jaddr_s4;
+                else pc <= jaddr_s4 - 3'b100;
+            end
+            else
+                pc <= pc4;
+        end
+     end
+     
 	// pass PC + 4 to stage 2
 	logic [31:0] pc4_s2;
 	regr #(.N(32)) regr_pc4_s2(.clk(clk),
@@ -131,18 +139,18 @@ module cpu
 
 	// instruction memory
 //	logic [31:0] inst;
-	logic [31:0] inst_s2, inst_temp;;
+	logic [31:0] inst_s2;
 //	im #(.NMEM(NMEM_T))
 ////	.IM_DATA(IM_DATA))
 //		im1(.clk(clk), .addr(pc), .data(inst));
     
-    regr #(.N(32)) regr_im_s2(.clk(clk),
-						.hold(stall_s1_s2), .clear(flush_s1),
-						.in(inst), .out(inst_temp));
+//    regr #(.N(32)) regr_im_s2(.clk(clk),
+//						.hold(stall_s1_s2), .clear(flush_s1),
+//						.in(inst), .out(inst_temp));
 						
 	regr #(.N(32)) regr_im_s1(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
-						.in(inst_temp), .out(inst_s2));
+						.in(inst), .out(inst_s2));
 
 	// }}}
 
@@ -229,7 +237,9 @@ module cpu
 	assign seimm_sl2 = {seimm[29:0], 2'b0};  // shift left 2 bits
 	// branch address
 	logic [31:0] baddr_s2;
-	assign baddr_s2 = pc4_s2 + seimm_sl2;
+	// Changes
+	assign baddr_s2 = seimm_sl2;
+//	assign baddr_s2 = pc4_s2 + seimm_sl2;
 
 	// transfer the control signals to stage 3
 	logic		regdst_s3;
@@ -286,7 +296,7 @@ module cpu
 //	logic [31:0] alusrc_data2;
 	assign alusrc_data2 = (alusrc_s3) ? seimm_s3 : fw_data2_s3;
 	// ALU control
-//	logic [3:0] aluctl;
+//	logic [5:0] aluctl;
 //	logic [5:0] funct;
 	assign funct = seimm_s3[5:0];
 	alu_control alu_ctl1(.funct(funct), .aluop(aluop_s3), .aluctl(aluctl));
@@ -300,7 +310,12 @@ module cpu
 			2'd2: fw_data1_s3 = wrdata_s5;
 		 default: fw_data1_s3 = data1_s3;
 		endcase
-		
+	
+	always_ff @(posedge clk) begin
+	   B.rs_value = fw_data1_s3;
+	   B.rt_value = alusrc_data2;
+	end
+	    	
 	logic zero_s3;
 	alu alu1(.ctl(aluctl), .a(fw_data1_s3), .b(alusrc_data2), .out(alurslt),
 									.zero(zero_s3));
@@ -355,9 +370,10 @@ module cpu
 	regr #(.N(32)) reg_jaddr_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(jaddr_s3), .out(jaddr_s4));
 	// }}}
-
+    
+    //////////////////////////////////////////////////////////////////////
 	// {{{ stage 4, MEM (memory)
-
+    //////////////////////////////////////////////////////////////////////
 	// pass regwrite and memtoreg to stage 5
 	
 	logic memtoreg_s5;
@@ -369,6 +385,11 @@ module cpu
 	logic [31:0] rdata;
 	dm dm1(.clk(clk), .addr(alurslt_s4[8:2]), .rd(memread_s4), .wr(memwrite_s4),
 			.wdata(data2_s4), .rdata(rdata));
+	
+	always_ff @(posedge clk) begin
+	   B.rd_value = alurslt;
+	   
+	end
 	// pass read data to stage 5
 	logic [31:0] rdata_s5;
 	regr #(.N(32)) reg_rdata_s4(.clk(clk), .clear(1'b0), .hold(1'b0),

@@ -4,14 +4,14 @@
 
 package AluCtrlSig_pkg;
 
-	typedef enum logic [3:0] {
-		ADD = 4'd02, 
-		SUB = 4'd06, 
-		AND = 4'd00, 
-		NOR = 4'd12, 
-		OR  = 4'd01, 
-		SLT = 4'd07, 
-		XOR = 4'd13
+	typedef enum logic [5:0] {
+		ADD = 6'h20, 
+		SUB = 6'h22, 
+		AND = 6'h24, 
+		NOR = 6'h27, 
+		OR  = 6'h25, 
+		SLT = 6'h2A, 
+		XOR = 6'h13
 	} AluOp_t;
 	
 	enum logic [5:0]{
@@ -21,12 +21,12 @@ package AluCtrlSig_pkg;
         SW_op   = 6'b101011,
         BNE_op  = 6'b000101,
         ADD_op = 6'b000000,
-        JMP_op  = 6'b000010
+        J_op  = 6'b000010
     }opcode_t; 
     
     enum logic [4:0] {
         v0 = 5'd2,
-        v1 = 5'd1,
+        v1 = 5'd3,
         t0 = 5'd8,
         t1 = 5'd9,
         t2 = 5'd10,
