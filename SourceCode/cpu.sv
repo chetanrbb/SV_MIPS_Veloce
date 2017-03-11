@@ -110,6 +110,7 @@ module cpu
 	assign pc4 = B.pc + 4;
 
 	always_ff @(posedge clk) begin
+	$monitor("CPU Instr Rec: %x", inst);
 	   if (pcEn) begin
             if (stall_s1_s2) 
                 pc <= pc;
@@ -276,6 +277,8 @@ module cpu
 				.in(jaddr_s2), .out(jaddr_s3));
 	// }}}
 
+	always_ff @ (posedge clk) B.b_address <= baddr_s3;
+	
     /////////////////////////////////////////////////////////////////////////////////////////////
 	// {{{ stage 3, EX (execute)
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -371,6 +374,7 @@ module cpu
 				.in(jaddr_s3), .out(jaddr_s4));
 	// }}}
     
+	always_ff @ (posedge clk) B.j_address <= jaddr_s3;
     //////////////////////////////////////////////////////////////////////
 	// {{{ stage 4, MEM (memory)
     //////////////////////////////////////////////////////////////////////
@@ -388,7 +392,7 @@ module cpu
 	
 	always_ff @(posedge clk) begin
 	   B.rd_value = alurslt;
-	   
+	   $display("B.rd_value: %d", B.rd_value);
 	end
 	// pass read data to stage 5
 	logic [31:0] rdata_s5;
