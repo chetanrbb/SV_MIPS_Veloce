@@ -27,7 +27,7 @@ else
 	velanalyze TBX_Mode_Testing/CPU_tb_dpi.sv
 	
 	#Note that the testbench.cxx file is passed to velcomp in veloce.config file. That way it knows this is the CoModel and compiles, then later runs on workstation
-	velcomp
+	velcomp 
 endif
                                                            
 run:

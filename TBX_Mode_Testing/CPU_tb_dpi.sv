@@ -57,8 +57,12 @@ end
 initial 
 begin
 	resetH = 1;			// activate the reset signal 
-	#20 resetH = 0;		// deactivate the reset signal 
+	#20ns resetH = 0;		// deactivate the reset signal 
+end
 
+initial 
+begin 
+	@ (posedge clk);
 	while (resetH) @ (posedge clk);
 	ResetOpr();			// call for the reset operation which will display the message on the console
 end
@@ -66,19 +70,16 @@ end
 always @ (posedge clk)
 begin
 	ClkCntrDisp <= ClkCntrDisp + 1;
-	$display("ClkCntrDisp: %d", ClkCntrDisp);
-	
+	$display("Clk Counter: %d", ClkCntrDisp);
 	if(resetH == 0)		// run the logic when there is no reset 
 	begin
 		En <= 1;
-		$display("Pc En in TB_DPI: %d", En);
+	
 		if(En)
 		begin
 		if(instr != 32'hFFFFFFFF)
 		begin
 			instr = GetInstrFmMem(PC);
-			$display("Instr Gen: %x", instr);
-			$display("Done with the getting of the instruction function\n");
 		end
 		
 		//if(ClkCntr < 5)
@@ -88,15 +89,12 @@ begin
 			if(OprDnFlg)		
 			begin
 				ResultOfOprFlg = 1;
-				$display("The result is Correct\n");
 			end
 			else
 			begin
 				ResultOfOprFlg = 0;
-				$display("The result is In-correct\n");
 			end
 			SendResOfProc(ResultOfOprFlg);		// the result will be sent by the Checker/CPU module indicating the operation is over 
-			$display("Done with the Sending the result of instruction \n");
 			
 			if(instr == 32'hFFFFFFFF) 
 			begin
@@ -106,7 +104,6 @@ begin
 				end
 				else
 				begin
-					$display("Instruction read is over\n");
 					$finish;
 				end
 			end
