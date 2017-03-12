@@ -70,7 +70,7 @@ end
 always @ (posedge clk)
 begin
 	ClkCntrDisp <= ClkCntrDisp + 1;
-	$display("Clk Counter: %d", ClkCntrDisp);
+	//$display("Clk Counter: %d", ClkCntrDisp);
 	if(resetH == 0)		// run the logic when there is no reset 
 	begin
 		En <= 1;
@@ -98,12 +98,13 @@ begin
 			
 			if(instr == 32'hFFFFFFFF) 
 			begin
-				if(FlushCntr < 5)
+				if(FlushCntr < 4)
 				begin
 					FlushCntr <= FlushCntr + 1;
 				end
 				else
 				begin
+					OperationComplete();
 					$finish;
 				end
 			end

@@ -403,7 +403,7 @@ module cpu
 	
 	always_ff @(posedge clk) begin
 	   B.rd_value <= alurslt;
-	   
+	   $display("Alurst: %x", B.rd_value);
 	end
 	// pass read data to stage 5
 	logic [31:0] rdata_s5;
