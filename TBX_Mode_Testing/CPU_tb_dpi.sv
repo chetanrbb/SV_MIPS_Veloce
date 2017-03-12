@@ -17,12 +17,14 @@ module CPU_tb_dpi;
 // Variables
 logic clk 		= 0;			// generate the clock for the system
 logic resetH 	= 0;			// reset the system 
-logic OprDnFlg 	= 0;			// Flag will be set by the CPU module when the operation is over 
+logic OprDnFlg 	;			// Flag will be set by the CPU module when the operation is over 
 int ResultOfOprFlg = 0;		// This flag will indicate if the previous operation was a success or a failure. It will be set by the checker or the CPU module
 int PC;
 int instr = '0;
 logic [31:0] cnt = 0;
 logic En = '0;
+logic [31:0]ClkCntr = 0, FlushCntr = 0;
+logic [31:0] ClkCntrDisp = 0;
 
 // Import the functions from the CPU_tb.cxx file
 import "DPI-C" pure function void ResetOpr();
@@ -34,13 +36,13 @@ import "DPI-C" pure function void OperationComplete();
 // Variables for Checker module 
 //logic InstrOvr = 0;		// Instruction Over flag will be set when the Instruction memory is over 
 
-ccheck inf (.clk);
+ccheck inf ();
 
 // Instantiate the module: CPU
-cpu CPU_tb(.clk, .reset(resetH), .pcEn(En), .pc(PC), .inst(instr), .B(inf));		// InstrOvr is not used for now 
+cpu CPU_tb(.clk(clk), .reset(resetH), .pcEn(En), .pc(PC), .inst(instr), .B(inf));		// InstrOvr is not used for now 
 
 // Instantiate the module Checker 
-checker checker_tb(.A(inf), .inst(instr), .pcEn(En), .OpDone(OprDnFlg));
+check checker_tb(inf, instr, clk, resetH, En, OprDnFlg);
 
 // Initial Conditions
 // tbx clkgen
@@ -56,55 +58,59 @@ initial
 begin
 	resetH = 1;			// activate the reset signal 
 	#20 resetH = 0;		// deactivate the reset signal 
-//end 
 
-//initial 
-//begin
-	//@(posedge clk);
 	while (resetH) @ (posedge clk);
 	ResetOpr();			// call for the reset operation which will display the message on the console
 end
 
-always @ (*)
+always @ (posedge clk)
 begin
+	ClkCntrDisp <= ClkCntrDisp + 1;
+	$display("ClkCntrDisp: %d", ClkCntrDisp);
+	
 	if(resetH == 0)		// run the logic when there is no reset 
 	begin
-		En = 1'b1;
-		// 1. Read the instruction from the memory 
-		// This will read the instruction stored in the instruction memory as per the PC count 
-		@(posedge clk);
-		instr = GetInstrFmMem(PC);
-		$display("%x", instr);
-		$display("Done with the getting of the instruction function\n");
-		
-		//@(posedge clk);
-		//instr = GetInstrFmMem(PC);
-		//$display("%x", instr);
-		//$display("Done with the getting of the instruction function\n");
-		
-		if(cnt < 10)
-			cnt <= cnt+1;
-		else
+		En <= 1;
+		$display("Pc En in TB_DPI: %d", En);
+		if(En)
 		begin
-			OprDnFlg <= 1;
-			
-		// 2. Wait till the operation from the CPU and the checker is over 
-		//while (!OprDnFlg)
-		//	@ (posedge clk);
-			
-		// 3. If the Instruction memory is over then call the Operation complete 
-		// 	  else if the instruction memory is not over then Send the data to the HVL to be displayed on the console. 
-		//if(InstrOvr)	// InstrOvr will be set when the stop instruction is read 
-		//begin
-		//	OperationComplete();		// Entire operation is over 
-		//	$finish;
-		//end
+		if(instr != 32'hFFFFFFFF)
+		begin
+			instr = GetInstrFmMem(PC);
+			$display("Instr Gen: %x", instr);
+			$display("Done with the getting of the instruction function\n");
+		end
+		
+		//if(ClkCntr < 5)
+		//	ClkCntr <= ClkCntr + 1;
 		//else
 		//begin
+			if(OprDnFlg)		
+			begin
+				ResultOfOprFlg = 1;
+				$display("The result is Correct\n");
+			end
+			else
+			begin
+				ResultOfOprFlg = 0;
+				$display("The result is In-correct\n");
+			end
 			SendResOfProc(ResultOfOprFlg);		// the result will be sent by the Checker/CPU module indicating the operation is over 
 			$display("Done with the Sending the result of instruction \n");
-		//end
-		$finish;
+			
+			if(instr == 32'hFFFFFFFF) 
+			begin
+				if(FlushCntr < 5)
+				begin
+					FlushCntr <= FlushCntr + 1;
+				end
+				else
+				begin
+					$display("Instruction read is over\n");
+					$finish;
+				end
+			end
+			
 		end
 	end
 

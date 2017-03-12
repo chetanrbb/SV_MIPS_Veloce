@@ -16,13 +16,17 @@
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
+//
+// Modified:
+// V2.0 CB
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 
-interface ccheck ();
+interface ccheck;
 
-    logic [31:0] rs_value,rt_value,rd_value,pc;
+    logic [31:0] rs_value,rt_value,rd_value,pc, j_address, b_address;
+
 //    logic [4:0] rs,rt,rd;
     
 
@@ -34,7 +38,9 @@ interface ccheck ();
         output rs_value,
         output rt_value,
         output rd_value,
-        output pc  
+        output pc ,
+		output j_address,
+		output b_address
     );
     
     modport M
@@ -42,7 +48,9 @@ interface ccheck ();
         input rs_value,
         input rt_value,
         input rd_value, 
-        input pc
+        input pc,
+		input j_address,
+		input b_address
         //input clk,
 //        output rs,
 //        output rt       
