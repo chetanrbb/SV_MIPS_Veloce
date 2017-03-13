@@ -24,13 +24,13 @@ using namespace std;
 static unsigned int InstrMemArr[100];	// store the instruction that are to be computed on the CPU
 static unsigned int ErrorCnt = 0;		// counter for the error 
 static unsigned int SuccsCnt = 0;		// counter for the success 
-static unsigned int Instr_bin = 0;
+static unsigned int Instr_Hex = 0;
+
+FILE *fp = NULL;
 
 static unsigned int instrMem[] = {
-0b00000000010000100001000000100010,
+0b00000000010000100001000000100010,   
 0b00000000011000110001100000100010,
-0b00100000010000100000000000001010,
-0b00100000011000110000000000010100/*,
 0b00000000011000100100000000100010,
 0b00000001001010010100100000100010,
 0b00000001011010110101100000100010,
@@ -47,8 +47,9 @@ static unsigned int instrMem[] = {
 0b00000001011010110101100000100010,
 0b00000001100011000110000000100010,
 0b00000001000010000100000000100010,
+0b00100000010000100000000000001010,
+0b00100000011000110000000000010100,
 0b00000001001010010100100000100010
-*/
 };
 
 /*static unsigned int instrMem[20] = {0x00421022,
@@ -70,56 +71,89 @@ void ResetOpr()
 	printf("Starting the CPU...\n");
 }
 
+unsigned char atoh(unsigned char val)
+{
+	unsigned char res = 0;
+	
+	if((val >= '0') && (val <= '9'))
+		res = val - 0x30;
+	else if((val >= 'a') && (val <= 'f'))
+		res = (val - 'a') + 10;
+	else if((val >= 'A') && (val <= 'F'))
+		res = val - 'A' + 10;
+	
+	return res;
+}
+
+unsigned int instr_atoh(char *instr)
+{
+	unsigned char cnt = 0;
+	unsigned int instrHex_t = 0, instrHex = 0;
+	
+	printf("Instr Read: %s\n", instr);
+	for(cnt = 0; cnt < 8; )
+	{
+		instrHex <<= 8;
+		
+		instrHex_t = atoh(instr[cnt]);		
+		instrHex_t <<= 4;
+		instrHex_t |= atoh(instr[cnt+1]);
+		
+		instrHex |= instrHex_t;
+		
+		cnt += 2;
+	}
+	return instrHex;
+}
 
 int GetInstrFmMem(int PC)
 {
 	char instr[35]; 
-	char *p = instr;
-	int count = 0;
+	static int count = 0;
+	int cnt = 0;
 	
-	const char *fileName = "instr_mem.txt";
-	const char *mode = "r";
 	
-	printf("PC: %x\n", PC);
-	if((PC/4) > 3)
+	// If file is not open then open the file 
+	if(!fp)
+	{
+		printf("HVL: Opening file Instruction Memory.. \n");
+		fp = fopen("instr_mem", "r");	
+			
+	}
+	
+	// FIle is open read the instruciton from it
+	while (fgets(instr, 10, fp)) // read a line
+	{
+		if (count == (PC/4))	// Read the file till the instruction PC is not reached
+		{
+			Instr_Hex = instr_atoh(instr);
+			printf("PC: %x\n", PC);
+			printf("Instr: %x\n", Instr_Hex);
+			return Instr_Hex;
+		}
+		else
+			count++;
+	}
+ 
+	// EOF is reached 
+	fclose(fp);
+	return 0xFFFFFFFF;
+	
+	
+	if((PC/4) > ((sizeof(instrMem)/4) - 1))
 		return 0xFFFFFFFF;
 	else
 		return instrMem[(PC/4)];
 	
-	/*
-	FILE *fp;
-	fp = fopen("instr_mem.txt", "a");	
 	
-	if(fp == 0)
-        printf("ERROR: instr_mem.txt file could not open\n");
-	else
-	{
-		//while (fgets(&instr[0], sizeof(instr), fp) != NULL) // read a line 
-		while (fgets(p, 35, fp)) // read a line
-		{
-			if (count == (PC/4))	// Read the file till the instruction PC is not reached
-			{
-				//Instr_bin = atoi(instr);
-				return 110;
-				//return Instr_bin;
-			}
-			else
-				count++;
-		}
-     
-		// EOF is reached 
-		fclose(fp);
-		return 0xFFFFFFFF;
-	}
-	return 100;
-	*/
-	//return 0;
+	
 }
 
 void SendResOfProc(int ResultOfOprFlg)
 {
 	printf("Operation was: %s\n", ResultOfOprFlg?("YES"):("NO"));
 	ResultOfOprFlg ? (SuccsCnt++) : (ErrorCnt++);
+	printf("SuccessCnt: %d\n", (SuccsCnt-1));
 }
 
 void OperationComplete()

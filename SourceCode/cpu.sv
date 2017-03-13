@@ -57,7 +57,7 @@ module cpu
     logic memread_s4;
     logic memwrite_s4;
 	
-	assign B.pc = pc;
+//	assign B.pc = pc;
 	
 	initial 
 	begin
@@ -85,13 +85,20 @@ module cpu
 	
 	always_comb 
 	begin
-		flush_s1 <= 1'b0;
-		flush_s2 <= 1'b0;
-		flush_s3 <= 1'b0;
-		if (pcsrc | jump_s4 | reset) begin
+	    if (reset == 1'b1) begin
+		  flush_s1 <= 1'b1;
+		  flush_s2 <= 1'b1;
+		  flush_s3 <= 1'b1;
+		end
+		else if (pcsrc | jump_s4) begin
 			flush_s1 <= 1'b1;
 			flush_s2 <= 1'b1;
 			flush_s3 <= 1'b1;
+		end
+		else begin
+		    flush_s1 <= 1'b0;
+            flush_s2 <= 1'b0;
+            flush_s3 <= 1'b0;
 		end
 	end
 	// }}}
@@ -107,30 +114,32 @@ module cpu
 	//end
 
 	logic [31:0] pc4;  // PC + 4
-	assign pc4 = B.pc + 4;
+	assign pc4 = pcEn ? (pc + 4): pc;
 
 	always_ff @(posedge clk) begin
-	$monitor("CPU Instr Rec: %x", inst);
-	   if (pcEn) begin
-            if (stall_s1_s2) 
-                pc <= pc;
+	   if(reset == 1'b1) pc <= '0;
+//	   else if (pcEn) begin
+       else if (stall_s1_s2) 
+            pc <= pc;
                 
-            //////////////////////////////////////////
-            // Chnages made: Harsh Momaya
-            // 3/10/2017- 3:22 PM
-            //////////////////////////////////////////	
-            else if (pcsrc == 1'b1) begin
-                if (baddr_s4 == '0) pc <= baddr_s4;
-                else pc <= baddr_s4 - 3'b100;
-            end
-            else if (jump_s4 == 1'b1) begin
-                if (jaddr_s4 == '0) pc <= jaddr_s4;
-                else pc <= jaddr_s4 - 3'b100;
-            end
-            else
-                pc <= pc4;
+        //////////////////////////////////////////
+        // Chnages made: Harsh Momaya
+        // 3/10/2017- 3:22 PM
+        //////////////////////////////////////////	
+        else if (pcsrc == 1'b1) begin
+            if (baddr_s4 == '0) pc <= baddr_s4;
+            else pc <= baddr_s4 - 3'b100;
         end
-     end
+        else if (jump_s4 == 1'b1) begin
+            if (jaddr_s4 == '0) pc <= jaddr_s4;
+            else pc <= jaddr_s4 - 3'b100;
+        end
+        else
+            pc <= pc4;
+        end
+        
+//        else pc <= pc;
+//     end
      
 	// pass PC + 4 to stage 2
 	logic [31:0] pc4_s2;
@@ -277,8 +286,6 @@ module cpu
 				.in(jaddr_s2), .out(jaddr_s3));
 	// }}}
 
-	always_ff @ (posedge clk) B.b_address <= baddr_s3;
-	
     /////////////////////////////////////////////////////////////////////////////////////////////
 	// {{{ stage 3, EX (execute)
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,15 +315,18 @@ module cpu
 	
 	
 	always_comb
+	    if (reset == 1'b1) fw_data1_s3 = '0;
+	    else begin
 		case (forward_a)
 			2'd1: fw_data1_s3 = alurslt_s4;
 			2'd2: fw_data1_s3 = wrdata_s5;
 		 default: fw_data1_s3 = data1_s3;
 		endcase
-	
+	   end
+	   
 	always_ff @(posedge clk) begin
-	   B.rs_value = fw_data1_s3;
-	   B.rt_value = alusrc_data2;
+	   B.rs_value <= fw_data1_s3;
+	   B.rt_value <= alusrc_data2;
 	end
 	    	
 	logic zero_s3;
@@ -337,12 +347,14 @@ module cpu
 	
 	
 	always_comb
+	    if (reset == 1'b1) fw_data2_s3 = '0;
+	    else begin
 		case (forward_b)
 			2'd1: fw_data2_s3 = alurslt_s4;
 			2'd2: fw_data2_s3 = wrdata_s5;
 		 default: fw_data2_s3 = data2_s3;
 		endcase
-		
+		end
 		
 	regr #(.N(32)) reg_data2_s3(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(fw_data2_s3), .out(data2_s4));
@@ -374,7 +386,6 @@ module cpu
 				.in(jaddr_s3), .out(jaddr_s4));
 	// }}}
     
-	always_ff @ (posedge clk) B.j_address <= jaddr_s3;
     //////////////////////////////////////////////////////////////////////
 	// {{{ stage 4, MEM (memory)
     //////////////////////////////////////////////////////////////////////
@@ -391,8 +402,8 @@ module cpu
 			.wdata(data2_s4), .rdata(rdata));
 	
 	always_ff @(posedge clk) begin
-	   B.rd_value = alurslt;
-	   $display("B.rd_value: %d", B.rd_value);
+	   B.rd_value <= alurslt;
+	   $display("Alurst: %x", B.rd_value);
 	end
 	// pass read data to stage 5
 	logic [31:0] rdata_s5;
@@ -416,11 +427,14 @@ module cpu
 	
 	always_comb 
 	begin
+	    if (reset == 1'b1) pcsrc <= 1'b0;
+	    else begin
 		case (1'b1)
 			branch_eq_s4: pcsrc <= zero_s4;
 			branch_ne_s4: pcsrc <= ~(zero_s4);
 			default: pcsrc <= 1'b0;
 		endcase
+	   end
 	end
 	// }}}
 			
@@ -445,7 +459,8 @@ module cpu
 		// and it is a value we want to read (stage 3), forward it.
 
 		// data1 input to ALU
-		if ((regwrite_s4 == 1'b1) && (wrreg_s4 == rs_s3)) begin
+		if (reset) forward_a <= 2'b00; 
+		else if ((regwrite_s4 == 1'b1) && (wrreg_s4 == rs_s3)) begin
 			forward_a <= 2'd1;  // stage 4
 		end else if ((regwrite_s5 == 1'b1) && (wrreg_s5 == rs_s3)) begin
 			forward_a <= 2'd2;  // stage 5
@@ -482,7 +497,8 @@ module cpu
 	
 	always_comb 
 	begin
-		if (memread_s3 == 1'b1 && ((rt == rt_s3) || (rs == rt_s3)) ) 
+		if (reset == 1'b1) stall_s1_s2 = 1'b0;
+		else if (memread_s3 == 1'b1 && ((rt == rt_s3) || (rs == rt_s3)) ) 
 		begin
 			stall_s1_s2 = 1'b1;  // perform a stall
 		end 
