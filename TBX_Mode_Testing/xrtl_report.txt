@@ -1,0 +1,48 @@
+====================================================================================================
+                                        SUMMARY OF XRTL TASKS
+====================================================================================================
+1) Statistics of HDL-to-HVL Communication Constructs
+  1.1) Input Pipe                 : 0
+  1.2) Output Pipe                : 0
+  1.3) Inbound Stream             : 0
+  1.4) Delayed Return Callers     : 0
+  1.5) PlusArgs Tasks             : 0
+  1.4) Zero-Delay-Loops           : 0
+  1.6) Aggressive One-Way Callers : 3
+  1.7) One-Way Callers            : 0
+  1.8) Two-Way Callers            : 1
+
+2) Statistics of HVL-to-HDL Communication Constructs
+  2.1) Out-Of-The-Blue Calls      : 0
+  2.2) Clocked Export Tasks       : 0
+  2.3) Zero-Time Export Tasks     : 0
+
+3) Number of SV System Tasks      : 1
+
+
+====================================================================================================
+                                        DETAILED LIST OF XRTL TASKS
+====================================================================================================
+
+
+ AGGRESSIVE ONE-WAY CALLER TASKS
+----------------------------------------------------------------------------------------------------
+ID      Name                             Scope                              FileName (Line-No)
+----------------------------------------------------------------------------------------------------
+ID-2    ResetOpr                         CPU_tb_dpi                         /u/bchetan/SV_FinalProject_TBXDPIC/SV_MIPS_Veloce/TBX_Mode_Testing/CPU_tb_dpi.sv (67)
+ID-3    SendResOfProc                    CPU_tb_dpi                         /u/bchetan/SV_FinalProject_TBXDPIC/SV_MIPS_Veloce/TBX_Mode_Testing/CPU_tb_dpi.sv (97)
+ID-4    OperationComplete                CPU_tb_dpi                         /u/bchetan/SV_FinalProject_TBXDPIC/SV_MIPS_Veloce/TBX_Mode_Testing/CPU_tb_dpi.sv (107)
+
+
+ OTHER TWO-WAY CALLER TASKS
+----------------------------------------------------------------------------------------------------
+ID      Name                             Scope                              FileName (Line-No)
+----------------------------------------------------------------------------------------------------
+ID-1    GetInstrFmMem                    CPU_tb_dpi                         /u/bchetan/SV_FinalProject_TBXDPIC/SV_MIPS_Veloce/TBX_Mode_Testing/CPU_tb_dpi.sv (82)
+
+
+ SYSTEM TASKS
+----------------------------------------------------------------------------------------------------
+ID      Name                             Scope                              FileName (Line-No)
+----------------------------------------------------------------------------------------------------
+ID-0    $finish                          CPU_tb_dpi                         /u/bchetan/SV_FinalProject_TBXDPIC/SV_MIPS_Veloce/TBX_Mode_Testing/CPU_tb_dpi.sv (108)

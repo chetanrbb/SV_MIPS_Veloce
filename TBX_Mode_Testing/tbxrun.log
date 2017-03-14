@@ -1,0 +1,20 @@
+
+Info!     [TBXR-6579]: : Initializing...
+Info!     [TBXR-6571]: : TAPI slot number used : 1
+Info!     [TBXR-6573]: : Starting up clocks...
+Info!     [TBXR-6576]: : Creating 192 bit write channel...
+Info!     [TBXR-6576]: : Creating 1152 bit read channel...
+Info!     [TBXR-6580]: : Initialization complete.
+=============================================================================
+                            SIMULATION STATISTICS                            
+=============================================================================
+Simulation finished at time 806500
+
+Total number of TBX clocks:                                      146895
+Total number of TBX clocks spent in HDL time advancement:        1613
+Total number of TBX clocks spent in HDL due to callee execution: 0
+Percentage TBX clocks spent in HDL time advance:                 1.10 %
+-----------------------------------------------------------------------------
+Total CPU time (user mode):                                      2.66 seconds.
+Total time spent:                                                4.65 seconds.
+-----------------------------------------------------------------------------
