@@ -82,16 +82,16 @@ module regm(
 
 	always_ff @(posedge clk) 
 	begin
-		//$display("V0: %x, V1: %x, t0: %x, t1: %x, t2: %x, t3: %x, t4: %x, t5: %x, t6: %x, t7: %x", mem[2][31:0],	/* $v0 */
-			//		mem[3][31:0],	/* $v1 */
-		//			mem[8][31:0],	/* $t0 */
-		//			mem[9][31:0],	/* $t1 */
-		//			mem[10][31:0],	/* $t2 */
-		//			mem[11][31:0],	/* $t3 */
-		//			mem[12][31:0],	/* $t4 */
-		//			mem[13][31:0],	/* $t5 */
-		//			mem[14][31:0],	/* $t6 */
-		//			mem[15][31:0]	/* $t7 */);
+		$display("V0: %x, V1: %x, t0: %x, t1: %x, t2: %x, t3: %x, t4: %x, t5: %x, t6: %x, t7: %x", mem[2][31:0],	/* $v0 */
+					mem[3][31:0],	/* $v1 */
+					mem[8][31:0],	/* $t0 */
+					mem[9][31:0],	/* $t1 */
+					mem[10][31:0],	/* $t2 */
+					mem[11][31:0],	/* $t3 */
+					mem[12][31:0],	/* $t4 */
+					mem[13][31:0],	/* $t5 */
+					mem[14][31:0],	/* $t6 */
+					mem[15][31:0]	/* $t7 */);
 		if (regwrite && wrreg != 5'd0) 
 		begin
 			mem[wrreg] <= wrdata; 			// write a non $zero register

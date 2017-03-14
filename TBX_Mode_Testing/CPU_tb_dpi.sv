@@ -98,7 +98,7 @@ begin
 			
 			if(instr == 32'hFFFFFFFF) 
 			begin
-				if(FlushCntr < 4)
+				if(FlushCntr < 3)
 				begin
 					FlushCntr <= FlushCntr + 1;
 				end

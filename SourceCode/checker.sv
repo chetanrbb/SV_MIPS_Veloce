@@ -34,18 +34,19 @@ module check(
      logic [31:0] rd_value2;
      logic [15:0] addr,imm;
      logic [25:0] jaddr;
-     logic [31:0] jaddr_1,jaddr_2,jaddr_3, addr_1, addr_2, addr_3;
+     logic [31:0] jaddr_1,jaddr_2,jaddr_3, addr_1, addr_2, addr_3, rdata, lw_addr,rdata_1,rdata_2,rdata_3;
 	 
 //     logic flag =0;
      logic [31:0] data1, data2;
      logic [31:0] out_data;//,out_data_1,out_data_f;
      logic pcEn_1,pcEn_2,pcEn_3/*, opDone_1,opDone_2*/,j_flag;
-     
+     logic rd_dm,rd_dm_1,rd_dm_2,rd_dm_3;
+	 
      //////changes
      logic [4:0] rs,rt;
      
 //     assign opcode = inst [31:26];
-     
+     dm dm1(.clk(clk), .addr(lw_addr[6:0]), .rd(rd_dm_2),.wr(0), .rdata(rdata),.wdata(0));
             
      always_comb begin
 //        rs = '0;
@@ -63,13 +64,14 @@ module check(
             jaddr   = '1;
         end        
         else if (pcEn == 1'b1) begin
-             
+             rd_dm = 0;
             unique case (opcode) 
             
                 LW_op: begin
                             rs      = inst [25:21];
                             rt      = inst [20:16];
                             addr    = inst [15:0];
+							rd_dm 	= 1;
                             shamt   = '1;
                             jaddr   = '1;
                             funct   = '1;
@@ -143,7 +145,13 @@ module check(
           
 //         else begin end 
        end
-          
+         
+		always_comb begin
+			if(opcode_2 == LW_op)
+			begin
+				lw_addr = A.rd_value + addr_2;
+			end
+		end
        
        always_ff @( posedge clk) begin
             if(reset == 1'b1)   begin
@@ -152,9 +160,16 @@ module check(
 				opcode_3 <= 0;
             end
             else begin
+			$display("rdata in always_chkr: %x",rdata);
                 opcode_1 <= opcode; 
                 opcode_3 <= opcode_1;       
 				opcode_2 <= opcode_3;
+				rd_dm_1 <= rd_dm;
+				rd_dm_2 <= rd_dm_1;
+				rd_dm_3 <= rd_dm_2;
+				rdata_1 <= rdata;
+				rdata_2 <= rdata_1;
+				rdata_3 <= rdata_2;
             end
         end
        
@@ -235,6 +250,18 @@ module check(
                     //else out_data = '0;
                end       
                
+			   else if (opcode_2 == LW_op) begin
+					$display("lw_data in chckr: %x", A.lw_data);
+					$display("rdata in chckr: %x", rdata);
+					
+					$display("lw_address in chckr: %x", lw_addr);
+					$display("rd_dm: %x", rd_dm_3);
+					if(A.lw_data == rdata) out_data = A.rd_value;
+			   end
+			   else if(opcode_2 == SW_op) begin
+					out_data = A.rd_value;
+			   end
+			   
                else if (opcode_2 == 6'b111111) out_data = '1; 
                //else if (opcode_2 == LW_op) if( A.j_address == jaddr_check) j_flag = A.rd_v;
                else out_data = '1;

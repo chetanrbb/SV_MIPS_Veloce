@@ -69,6 +69,10 @@ static unsigned int instrMem[] = {
 									};
 */
 
+unsigned int InstrArr[5] = {0};
+unsigned char rdPtr = 0;
+unsigned char wrPtr = 0;
+unsigned char sendFlg = 0;
 
 //////////////////////////////////////////////////////
 // File Type: Functional Coverage
@@ -85,7 +89,7 @@ static unsigned int addCrctResult, addErrResult, subCrctResult, subErrResult, an
 
 static unsigned int lwopCntr = 0, lwCrctResult = 0, lwErrResult = 0, addiCntr = 0, addiCrctResult = 0, addiErrResult = 0, beqCntr = 0, beqCrctResult = 0, beqErrResult = 0, swopCntr = 0, swopCrctResult = 0, swopErrResult = 0, bneCntr = 0, bneCrctResult = 0, bneErrResult = 0,jopCntr = 0, jopCrctResult = 0, jopErrResult = 0;
 	
-
+unsigned int TotalInstrRun = 0;
 
 void FunctionalCoverage(int instr, int result)
 {
@@ -111,10 +115,10 @@ typedef enum
 	J_op = 0x02
 }opcode_t;
 
-    
+		
 	
-	
-	switch((instr>>24) & 0x3F)	// read the instruction opcode 
+	printf("FC: %x, Res: %x", instr, result);
+	switch((instr>>26) & 0x3F)	// read the instruction opcode 
 	{
 	case ADD_op: {
 					switch(instr & 0x3F)	// read the funct bits 
@@ -193,8 +197,7 @@ typedef enum
 					result? (jopCrctResult++):(jopErrResult++);
 					break;
 			   }
-	}
-	
+	}	
 }
 
 
@@ -267,6 +270,12 @@ int GetInstrFmMem(int PC)
 			printf("PC Cnt: %d\n", (PC/4)+1);
 			printf("PC: %x\n", PC);
 			printf("Instr: %x\n", Instr_Hex);
+			InstrArr[wrPtr++] = Instr_Hex;
+			if(wrPtr >= 5)	// all array is full 
+			{
+				wrPtr = 0;
+				sendFlg = 1;
+			}
 			return Instr_Hex;
 		}
 		else 
@@ -292,10 +301,16 @@ int GetInstrFmMem(int PC)
 
 void SendResOfProc(int ResultOfOprFlg)
 {
+	TotalInstrRun++;
 	printf("Operation was: %s\n", ResultOfOprFlg?("YES"):("NO"));
 	ResultOfOprFlg ? (SuccsCnt++) : (ErrorCnt++);
 	printf("SuccessCnt: %d\n", (SuccsCnt)?(SuccsCnt-1):(0));
-	FunctionalCoverage(Instr_Hex, ResultOfOprFlg);
+	if(sendFlg)
+	{
+		FunctionalCoverage(InstrArr[rdPtr++], ResultOfOprFlg);
+		if(rdPtr >= 5)
+			rdPtr = 0;
+	}
 }
 
 void OperationComplete()
@@ -311,47 +326,53 @@ void OperationComplete()
 		Fc_fp = fopen("FunctionalCoverage", "a");	
 	}
 	
+	fputs("\n---------------------------------------------------------------\n", Fc_fp);
+	
 	fputs("The functional coverage file contains the following information\n", Fc_fp);
 	
-	sprintf(fcfp_arr, "ADD: Total: %d, Correct : %d, Error: %d\n", addCntr, addCrctResult, addErrResult);
+	sprintf(fcfp_arr, "ADD:  Total: %d, \tCorrect : %d, \tError: %d\n", addCntr, addCrctResult, addErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "SUB: Total: %d, Correct : %d, Error: %d\n", subCntr, subCrctResult, subErrResult);
+	sprintf(fcfp_arr, "SUB:  Total: %d, \tCorrect : %d, \tError: %d\n", subCntr, subCrctResult, subErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "AND: Total: %d, Correct : %d, Error: %d\n", andCntr, andCrctResult, andErrResult);
+	sprintf(fcfp_arr, "AND:  Total: %d, \tCorrect : %d, \tError: %d\n", andCntr, andCrctResult, andErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "XOR: Total: %d, Correct : %d, Error: %d\n", xorCntr, xorCrctResult, xorErrResult);
+	sprintf(fcfp_arr, "XOR:  Total: %d, \tCorrect : %d, \tError: %d\n", xorCntr, xorCrctResult, xorErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "NOR: Total: %d, Correct : %d, Error: %d\n", norCntr, norCrctResult, norErrResult);
+	sprintf(fcfp_arr, "NOR:  Total: %d, \tCorrect : %d, \tError: %d\n", norCntr, norCrctResult, norErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "OR: Total: %d, Correct : %d, Error: %d\n", orCntr, orCrctResult, orErrResult);
+	sprintf(fcfp_arr, "OR:   Total: %d, \tCorrect : %d, \tError: %d\n", orCntr, orCrctResult, orErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "SLT: Total: %d, Correct : %d, Error: %d\n", sltCntr, sltCrctResult, sltErrResult);
+	sprintf(fcfp_arr, "SLT:  Total: %d, \tCorrect : %d, \tError: %d\n", sltCntr, sltCrctResult, sltErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "LW: Total: %d, Correct : %d, Error: %d\n", lwopCntr, lwCrctResult, lwErrResult);
+	sprintf(fcfp_arr, "LW:   Total: %d, \tCorrect : %d, \tError: %d\n", lwopCntr, lwCrctResult, lwErrResult); 
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "ADDI: Total: %d, Correct : %d, Error: %d\n", addiCntr, addiCrctResult, addiErrResult);
+	sprintf(fcfp_arr, "ADDI: Total: %d, \tCorrect : %d, \tError: %d\n", addiCntr, addiCrctResult, addiErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "BEQ: Total: %d, Correct : %d, Error: %d\n", beqCntr, beqCrctResult, beqErrResult);
+	sprintf(fcfp_arr, "BEQ:  Total: %d, \tCorrect : %d, \tError: %d\n", beqCntr, beqCrctResult, beqErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "SW: Total: %d, Correct : %d, Error: %d\n", swopCntr, swopCrctResult, swopErrResult);
+	sprintf(fcfp_arr, "SW:   Total: %d, \tCorrect : %d, \tError: %d\n", swopCntr, swopCrctResult, swopErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "BNE: Total: %d, Correct : %d, Error: %d\n", bneCntr, bneCrctResult, bneErrResult);
+	sprintf(fcfp_arr, "BNE:  Total: %d, \tCorrect : %d, \tError: %d\n", bneCntr, bneCrctResult, bneErrResult);
 	fputs(fcfp_arr, Fc_fp);
 	
-	sprintf(fcfp_arr, "JMP: Total: %d, Correct : %d, Error: %d\n", jopCntr, jopCrctResult, jopErrResult);
+	sprintf(fcfp_arr, "JMP:  Total: %d, \tCorrect : %d, \tError: %d\n", jopCntr, jopCrctResult, jopErrResult);
 	fputs(fcfp_arr, Fc_fp);
 
+	sprintf(fcfp_arr, "Total Operations: %d, Successful: %d, Error: %d\n",TotalInstrRun, SuccsCnt, ErrorCnt);
+	fputs(fcfp_arr, Fc_fp);
+	
+	fputs("---------------------------------------------------------------\n", Fc_fp);
 	fclose(Fc_fp);
 }
 
