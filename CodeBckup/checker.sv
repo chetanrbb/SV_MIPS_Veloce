@@ -34,8 +34,7 @@ module check(
      logic [31:0] rd_value2;
      logic [15:0] addr,imm;
      logic [25:0] jaddr;
-     logic [31:0] jaddr_1,jaddr_2,jaddr_3, addr_1, addr_2, addr_3;
-	 
+     logic [31:0] jaddr_check;
 //     logic flag =0;
      logic [31:0] data1, data2;
      logic [31:0] out_data;//,out_data_1,out_data_f;
@@ -168,12 +167,7 @@ module check(
                 pcEn_2 <= '0;
                 pcEn_3 <= '0;
 //                opDone_2 <= '0;
-                jaddr_1 <= '0;
-				jaddr_2 <= '0;
-				jaddr_3 <= '0;
-				addr_1 <= '0;
-				addr_2 <= '0;
-				addr_3 <= '0;
+                jaddr_check <= '0;
 //                OpDone <= '0;
             end
             
@@ -184,13 +178,8 @@ module check(
             pcEn_1 <= pcEn;
             pcEn_3 <= pcEn_1;
             pcEn_2 <= pcEn_3;
-            jaddr_1 <= {4'b0000, jaddr,2'b00};
-            jaddr_2 <= jaddr_1;
-			jaddr_3 <= jaddr_2;
-			addr_1 <= {14'd0, addr[15:0] , 2'b00};
-			addr_2 <= addr_1;
-			addr_3 <= addr_2;
-			end
+            jaddr_check <= {4'b0000, jaddr,2'b00};
+            end
         end
         
         always_ff @(posedge clk)
@@ -218,20 +207,14 @@ module check(
                end
                
                else if (opcode_2 == ADDI_op ) out_data = A.rt_value + A.rs_value;
-               else if (opcode_2 == J_op) begin	
-			   $display("A.jump_addr: %x, Jaddr2: %x, Jaddr3: %x", A.jump_addr, jaddr_2, jaddr_3);
-			   
-					if(A.jump_addr == jaddr_3)
-						out_data = A.rd_value;
-					else out_data = '1;
-				end		
+               else if (opcode_2 == J_op) out_data = A.rd_value;
                else if (opcode_2 == BNE_op) begin 
-                    if (( A.rs_value != A.rt_value) && (A.branch_addr == addr_3)) out_data = A.rd_value;
-                    //else begin end //else out_data = '1;
+                    if ( A.rs_value != A.rt_value) out_data = addr;
+                    //else out_data = '0;
                end       
                
                else if (opcode_2 == BEQ_op) begin
-                    if (( A.rs_value == A.rt_value) && (A.branch_addr == addr_3)) out_data = A.rd_value;
+                    if ( A.rs_value == A.rt_value) out_data = addr;
                     //else out_data = '0;
                end       
                

@@ -22,9 +22,7 @@
 
 interface ccheck();
 
-    logic [31:0] rs_value,rt_value,rd_value;
-	logic [31:0] branch_addr, jump_addr;
-	//,pc;
+    logic [31:0] rs_value,rt_value,rd_value;//,pc;
 //    logic [4:0] rs,rt,rd;
     
 
@@ -35,9 +33,7 @@ interface ccheck();
 //        input rt,
         output rs_value,
         output rt_value,
-        output rd_value,
-		output branch_addr,
-		output jump_addr
+        output rd_value
 //        output pc  
     );
     
@@ -45,9 +41,7 @@ interface ccheck();
     (
         input rs_value,
         input rt_value,
-        input rd_value,
-		input branch_addr,
-		input jump_addr		
+        input rd_value 
 //        input pc
         //input clk,
 //        output rs,

@@ -113,8 +113,6 @@ module cpu
 	//	pc <= 32'd0;
 	//end
 
-	logic [31:0] jaddr_s3;
-	logic [31:0] baddr_s3;
 	logic [31:0] pc4;  // PC + 4
 	assign pc4 = pcEn ? (pc + 4): pc;
 
@@ -149,13 +147,6 @@ module cpu
 						.hold(stall_s1_s2), .clear(flush_s1),
 						.in(pc4), .out(pc4_s2));
 
-						
-	always_ff @(posedge clk)
-		begin
-			B.jump_addr <= jaddr_s3;
-			B.branch_addr <= baddr_s3;
-		end
-		
 	// instruction memory
 //	logic [31:0] inst;
 	logic [31:0] inst_s2;
@@ -280,7 +271,8 @@ module cpu
 	regr #(.N(2)) branch_s2_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in({branch_eq_s2, branch_ne_s2}),
 				.out({branch_eq_s3, branch_ne_s3}));
-	
+
+	logic [31:0] baddr_s3;
 	regr #(.N(32)) baddr_s2_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in(baddr_s2), .out(baddr_s3));
 
@@ -289,7 +281,7 @@ module cpu
 				.in(jump_s2),
 				.out(jump_s3));
 
-	
+	logic [31:0] jaddr_s3;
 	regr #(.N(32)) reg_jaddr_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in(jaddr_s2), .out(jaddr_s3));
 	// }}}
