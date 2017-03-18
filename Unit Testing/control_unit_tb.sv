@@ -25,7 +25,7 @@ module control_tb;
 		
 	control tb(.*);			// control file is instantiated
 	
-	// checking is done and displayed if the functionality is correct or not
+	// checking is done and displayed if the functionality is correct or not based on opcode provided as input
 	initial begin
 	for (i=0; i<=6 ;i++) begin
 		opcode = i;

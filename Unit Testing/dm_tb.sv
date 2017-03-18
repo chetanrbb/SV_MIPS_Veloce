@@ -37,6 +37,7 @@ module dm_tb;
     
     always #5 clk = ~clk;
     
+	// testing starts here
     initial begin
     wr = 1'b1;
     rd = 1'b0;
@@ -80,7 +81,7 @@ module dm_tb;
 	rd= 1'b0;
        
        
-    c = $fopen("operations.txt","w");
+    c = $fopen("dm_output.txt","w");
     $fwrite(c, "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     $fwrite(c,"Exhaustive write and read operations is performed 100 times \n");
    

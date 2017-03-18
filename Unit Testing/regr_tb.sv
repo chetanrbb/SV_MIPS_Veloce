@@ -21,17 +21,20 @@ module regr_tb;
 	logic [7:0] out;
 	integer i;
 	
+	// register memory is instantiated
 	regr tb(.*);
 	initial begin
 	clk = 1'b1;
 	end
 	
-	always #5 clk = ~clk;
+	always #5 clk = ~clk;		// clock is generated
 	
 	initial begin
 	clear = 1;
 	#30;
 	clear = 0;
+	
+	// inputs are applied randomly
 	
 	for (i=0;i<10; i++) begin
 	   in = $random % 8'hFF; 
