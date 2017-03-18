@@ -1,13 +1,18 @@
-
-// call the alu control operation 
-// the function parameter will store the operation to be conducted 
-// the aluop parameter will decide the opeation to be done directly or to be done from the funciton block 
-
+//////////////////////////////////////////////////////////////////////////////////
+// <alu_control.sv> - The following file generates control signals for alu.
+// 
+// Source: Github
+// Modified by: Daksh Dharod (daksh@pdx.edu)
+// Description: It calls the alu control operation. 
+// 				The function parameter will store the operation to be conducted. 
+// 				The aluop parameter will decide the opeation to be done directly or to be done from the funciton block.
+//
+// Modifications: The typedef values for different operations are modified to make the checking easy. These changes are only done for unit testing.  
+//////////////////////////////////////////////////////////////////////////////////
 
 `ifndef _alu_control
 `define _alu_control
 
-//`include "AluCtrlSig_pkg.sv"
 
 package AluCtrlSig_pkg1;
 	typedef enum logic [3:0] {
@@ -43,14 +48,14 @@ module alu_control(
 			SLT:  _funct <= 4'd7;		// slt 
 			default: _funct <= 4'd0;
 		endcase
-	end
+	end 
 
 	always_comb begin
 		case(aluop)
-			2'd0: aluctl <= 4'd2;	/* add */
-			2'd1: aluctl <= 4'd6;	/* sub */
+			2'd0: aluctl <= 4'd2;		/* add */
+			2'd1: aluctl <= 4'd6;		/* sub */
 			2'd2: aluctl <= _funct; 
-			2'd3: aluctl <= 4'd2;	/* add */
+			2'd3: aluctl <= 4'd2;		/* add */
 			default: aluctl <= 0;   
 		endcase
 	end

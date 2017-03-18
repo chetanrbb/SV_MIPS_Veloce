@@ -1,29 +1,13 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Company: Portland State University
+// Engineer: Daksh Dharod
 // 
 // Create Date: 03/05/2017 07:20:58 PM
-// Design Name: 
-// Module Name: tb_alu
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-// ADD = 4'd00, 
-// SUB = 4'd01, 
-// AND = 4'd02, 
-// NOR = 4'd03, 
-// OR  = 4'd04, 
-// SLT = 4'd05, 
-// XOR = 4'd06
+// Module Name: alu_tb
+// Description: The following module provides various inputs randomly generated using random functions.
+// 				Also the control signals are randomly varied with different input combinations. 
+//				The outputs and the zero flag is displayed.
 //
 //
 //////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +21,8 @@ module tb_alu;
     logic 			zero;
     integer i;
     logic clk;
+	
+	// alu module is instantiated
     alu tb(.*);
     
     initial begin
@@ -47,9 +33,9 @@ module tb_alu;
     
     initial begin
     
+	// randomly genrated inputs along with control signals are provided and output is displayed
     for (i=0; i<=50;i++) begin
         
-//        @(posedge clk) a = 32'b1111;b = 32'b1011;
         
         a = $random % 32'hFFFF;
         b = $random % 32'hFFFF;
