@@ -1,3 +1,15 @@
+//////////////////////////////////////////////////////////////////////////////////
+// <alu.sv> - The following file performs the alu operation based on control signals.
+// 
+// Source: Github
+// Modified by: Daksh Dharod (daksh@pdx.edu)
+//
+// Description: The following module generates control signals based on opcode.
+//
+// Modifications: The typedef values for different operations are modified to make the checking easy. These changes are only done for unit testing.  
+//////////////////////////////////////////////////////////////////////////////////
+
+
 `ifndef _control
 `define _control
 
@@ -22,7 +34,8 @@ module control(
 		
 	always_comb 
 	begin
-	
+		
+		// default signals
 		aluop[1:0]	= 2'b10;
 		alusrc		= 1'b0;
 		branch_eq	= 1'b0;
@@ -34,40 +47,46 @@ module control(
 		regwrite	= 1'b1;
 		jump		= 1'b0;
 
-		unique case (opcode)
-			LW:  begin	/* lw */
+		unique case (opcode)			// based on opcode, control signals are generated
+			LW:  begin					/* lw */
 				 memread  = 1'b1;
 				 regdst   = 1'b0;
 				 memtoreg = 1'b1;
 				 aluop[1] = 1'b0;
 				 alusrc   = 1'b1;
 				 end
-			ADDI: begin	/* addi */
+				 
+			ADDI: begin					/* addi */
 				 regdst   = 1'b0;
 				 aluop[1] = 1'b0;
 				 alusrc   = 1'b1;
 				 end
-			BEQ: begin	/* beq */
+				 
+			BEQ: begin					/* beq */
 				 aluop[0]  = 1'b1;
 				 aluop[1]  = 1'b0;
 				 branch_eq = 1'b1;
 				 regwrite  = 1'b0;
 				 end
-			SW:  begin	/* sw */
+				  
+			SW:  begin					/* sw */
 				 memwrite = 1'b1;
 				 aluop[1] = 1'b0;
 				 alusrc   = 1'b1;
 				 regwrite = 1'b0;
 				 end
-			BNE: begin	/* bne */
+				 
+			BNE: begin					/* bne */
 				 aluop[0]  = 1'b1;
 				 aluop[1]  = 1'b0;
 				 branch_ne = 1'b1;
 				 regwrite  = 1'b0;
 				 end
-			ADD: begin	/* add */
+				 
+			ADD: begin					/* add */
 				 end
-			JMP: begin	/* j jump */
+				 
+			JMP: begin					/* j jump */
 				 jump = 1'b1;
 				 end
 		endcase

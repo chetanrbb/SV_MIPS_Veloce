@@ -1,21 +1,13 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Company: Portland State University
+// Engineer: Daksh Dharod
 // Create Date: 03/06/2017 06:18:19 PM
-// Design Name: 
 // Module Name: regr_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
 // 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// Description: The following testbench generates inputs randomly and the outputs is checked.
+// 				
+//
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -40,12 +32,14 @@ module regr_tb;
 	clear = 1;
 	#30;
 	clear = 0;
+	
 	for (i=0;i<10; i++) begin
 	   in = $random % 8'hFF; 
 	   if (i==5) hold = 1'b1;
 	   if (i==8) hold = 1'b0;
 	   #10;
 	end
+	
 	end   
 	
 endmodule
