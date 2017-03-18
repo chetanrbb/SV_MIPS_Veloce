@@ -54,6 +54,7 @@ module check(
      logic [15:0] addr,imm;
      logic [25:0] jaddr;
      logic [31:0] jaddr_1,jaddr_2,jaddr_3, addr_1, addr_2, addr_3, rdata, lw_addr,rdata_1,rdata_2,rdata_3;
+<<<<<<< HEAD
      logic [31:0] data1, data2;
      logic [31:0] out_data;
      logic pcEn_1,pcEn_2,pcEn_3,j_flag;
@@ -65,6 +66,21 @@ module check(
       
 
 	 // combinational block which breaks the instruction from the machine code.	
+=======
+	 
+//     logic flag =0;
+     logic [31:0] data1, data2;
+     logic [31:0] out_data;//,out_data_1,out_data_f;
+     logic pcEn_1,pcEn_2,pcEn_3/*, opDone_1,opDone_2*/,j_flag;
+     logic rd_dm,rd_dm_1,rd_dm_2,rd_dm_3;
+	 
+     //////changes
+     logic [4:0] rs,rt;
+     
+//     assign opcode = inst [31:26];
+     dm dm1(.clk(clk), .addr(lw_addr[6:0]), .rd(rd_dm_2),.wr(0), .rdata(rdata),.wdata(0));
+            
+>>>>>>> refs/remotes/chetanrbb/master
      always_comb begin
 	 
         opcode = inst [31:26];
@@ -81,7 +97,10 @@ module check(
 		
         else if (pcEn == 1'b1) begin
              rd_dm = 0;
+<<<<<<< HEAD
 			 
+=======
+>>>>>>> refs/remotes/chetanrbb/master
             unique case (opcode) 
             
                 LW_op: begin
@@ -162,13 +181,21 @@ module check(
           
        end
          
+<<<<<<< HEAD
 		 // For load instruction, load address is calculated based on source value and immediate address  
 		 always_comb begin
+=======
+		always_comb begin
+>>>>>>> refs/remotes/chetanrbb/master
 			if(opcode_2 == LW_op)
 			begin
 				lw_addr = A.rd_value + addr_2;
 			end
+<<<<<<< HEAD
 		 end
+=======
+		end
+>>>>>>> refs/remotes/chetanrbb/master
        
 		 // pipelining the signals for timing match
          always_ff @( posedge clk) begin
@@ -178,7 +205,11 @@ module check(
 				opcode_3 <= 0;
             end
             else begin
+<<<<<<< HEAD
 			$display("rdata in always_chkr: %x",rdata);			// For debugging purpose
+=======
+			$display("rdata in always_chkr: %x",rdata);
+>>>>>>> refs/remotes/chetanrbb/master
                 opcode_1 <= opcode; 
                 opcode_3 <= opcode_1;       
 				opcode_2 <= opcode_3;
@@ -267,9 +298,15 @@ module check(
                end       
                
 			   else if (opcode_2 == LW_op) begin
+<<<<<<< HEAD
 					// for debugging purpose
 					$display("lw_data in chckr: %x", A.lw_data);
 					$display("rdata in chckr: %x", rdata);					
+=======
+					$display("lw_data in chckr: %x", A.lw_data);
+					$display("rdata in chckr: %x", rdata);
+					
+>>>>>>> refs/remotes/chetanrbb/master
 					$display("lw_address in chckr: %x", lw_addr);
 					$display("rd_dm: %x", rd_dm_3);
 					if(A.lw_data == rdata) out_data = A.rd_value;
