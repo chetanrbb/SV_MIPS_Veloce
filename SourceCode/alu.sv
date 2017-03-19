@@ -1,10 +1,14 @@
 `timescale 1ns / 10ps
-/////////////////////////////////////////////////////////////////////////
-// This module will take the inputs of a and b and do the operaiton as per the control signals given to it. 
+///////////////////////////////////////////////////////////////////////// Module Name: Alu.sv   
+//
+// Original Source: https://github.com/jmahler/mips-cpu
+// Modified by Authors: Chetan B. | Daksh D. | Harsh M.
+//
+// Description:  This module will take the inputs of a and b and do the operaiton as per the control signals given to it. 
 // IF the result of the operaiton is zero then the zero flag is set else the output of the operation is 
 // given out of the out signal. 
-
-// ???????? set less than 2 is not clear ?????
+//
+// 
 /////////////////////////////////////////////////////////////////////////
 
 
@@ -30,7 +34,6 @@ module alu(
 	assign zero = (0 == out);
 	assign sub_ab = a - b;				// add the signal/subtract the signals
 	assign add_ab = a + b;
-	/*rc_adder #(.N(32)) add0(.a(a), .b(b), .s(add_ab));*/
 
 	// overflow occurs (with 2s complement numbers) when
 	// the operands have the same sign, but the sign of the result is
