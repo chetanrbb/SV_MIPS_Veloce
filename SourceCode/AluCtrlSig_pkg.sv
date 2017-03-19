@@ -2,6 +2,21 @@
 `ifndef ALU_PKG
 `define ALU_PKG
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// AluCtrlSig_pkg.sv : Package unit consisting of typedef and enum
+// ECE 571	|	Portland State University
+// Source: https://github.com/jmahler/mips-cpu 	
+// Engineer: Daksh Dharod
+//			 Harsh Momaya
+//			 Chetan Bornarkar
+// 
+// Create Date: 03/06/2017
+//
+// Description:
+// 1. typedef is used for ALU operation type
+// 2. There are 2 enums for opcode type and internal register type
+/////////////////////////////////////////////////////////////////////////////////////////
+
 package AluCtrlSig_pkg;
 
 	typedef enum logic [5:0] {

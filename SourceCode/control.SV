@@ -2,7 +2,20 @@
 `ifndef _control
 `define _control
 
-//`include "AluCtrlSig_pkg.sv"
+/////////////////////////////////////////////////////////////////////////////////////
+// control.sv: Generates CPU and ALU control signals.
+// ECE 571	|	Portland State University
+// Source: https://github.com/jmahler/mips-cpu 	
+// Engineer: Daksh Dharod
+//			 Harsh Momaya
+//			 Chetan Bornarkar
+// 
+// Create Date: 03/06/2017
+//
+// Description:
+// 1. Based on opcode, alu and cpu control signals will be generated.
+//  
+//////////////////////////////////////////////////////////////////////////////////////
 
 module control(
 		input  logic	[5:0]	opcode,
@@ -12,21 +25,20 @@ module control(
 		output logic			regdst, regwrite, alusrc,
 		output logic			jump);
 
-    import AluCtrlSig_pkg::*;
-    	
+    import AluCtrlSig_pkg::*;	
 		
 	always_comb 
 	begin
 	
-		aluop[1:0]	= 2'b10;
-		alusrc		= 1'b0;
-		branch_eq	= 1'b0;
-		branch_ne	= 1'b0;
-		memread		= 1'b0;
-		memtoreg	= 1'b0;
-		memwrite	= 1'b0;
-		regdst		= 1'b1;
-		regwrite	= 1'b1;
+		aluop[1:0]	= 2'b10;	// ALU operation type
+		alusrc		= 1'b0;		// ALU Source 
+		branch_eq	= 1'b0;		// Branch if equal
+		branch_ne	= 1'b0;		// Branch if not equal
+		memread		= 1'b0;		// Read from memory
+		memtoreg	= 1'b0;		// memory to register
+		memwrite	= 1'b0;		// Write to memory
+		regdst		= 1'b1;		// Register is destination
+		regwrite	= 1'b1;		// Regeister write
 		jump		= 1'b0;
 
 		unique case (opcode)
