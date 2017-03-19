@@ -1,20 +1,35 @@
-/*
- * cpu. - five stage MIPS CPU.
- *
- * Many variables (wires) pass through several stages.
- * The naming convention used for each stage is
- * accomplished by appending the stage number (_s<num>).
- * For example the variable named "data" which is
- * in stage 2 and stage 3 would be named as follows.
- *
- * logic data_s2;
- * logic data_s3;
- *	
- * If the stage number is omitted it is assumed to
- * be at the stage at which the variable is first
- * established.
- */
- 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	cpu.sv - CPU top module which integrates all modules
+//	ECE 571	| Portland State University
+//	Date: 03/18/2017
+//	Engineers: 	Chetan Bornarkar
+//				Daksh Dhaord
+//				Harsh Momaya
+//
+//	Description: Five stage MIPS CPU and it consists of the following stages:
+//				 	1. Fetch 
+//				 	2.	Decode
+//				 	3. Execute
+//				 	4. Memory
+//				 	5. Writeback
+//
+//				CPU module consists of instantiation of the following modules:
+//					1. control 			- Generate control signals
+//					2. dm	   			- Data memory having 128 locations with each location storing 32 bits
+//					3. alu_control		- responsible for generating control signals for ALU
+//					4. regm		 		- Register memory
+//					5. regr				- Pipeline register
+//					6. alu				- This unit performs arithmetic and logical operations.
+//					7. AluCtrlSig_pkg	- It is a package unit which consists of typedefs and enums  	 
+//
+//	 
+//	Modifications:
+//	1.	Control added to PC with the help of pcEn signal
+//	2.	Reset functionality added
+//	3.	Extracted internal cpu signals for checker unit with the help of interface.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 `timescale 1ns / 10ps
 `ifndef DEBUG_CPU_STAGES
 `define DEBUG_CPU_STAGES 0
@@ -22,19 +37,22 @@
 
 
 module cpu 
-//    #(
-//    //parameter string IM_DATA = "im_data.txt",
-//	parameter NMEM_T = 20  // number in instruction memory
-	  
-//	)
 	(
 		input wire clk, reset,
 		input logic [31:0] inst,
 		output logic [31:0] pc = '0,
+		
+		//	Interface added to design to extract internal signals of cpu module. 
 		ccheck.H B,
 		input logic pcEn
 	);
 
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//	Internal signals	
+	//
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	
 	logic [4:0] wrreg_s5;
 	logic regwrite_s5;
 	logic flush_s1, flush_s2, flush_s3;
@@ -56,8 +74,13 @@ module cpu
 	logic [31:0] data2_s4;
     logic memread_s4;
     logic memwrite_s4;
+
 	
-//	assign B.pc = pc;
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//	Debugging 
+	//
+	//////////////////////////////////////////////////////////////////////////////////////////////
 	
 	initial 
 	begin
@@ -82,6 +105,11 @@ module cpu
 	end
 
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//	Flushing logic
+	//
+	/////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	always_comb 
 	begin
@@ -101,82 +129,67 @@ module cpu
             flush_s3 <= 1'b0;
 		end
 	end
-	// }}}
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //
 	// stage 1, IF (fetch)
     //
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-//	logic  [31:0] pc = 32'b0;
-	//initial begin
-	//	pc <= 32'd0;
-	//end
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	logic [31:0] jaddr_s3;
 	logic [31:0] baddr_s3;
-	logic [31:0] pc4;  // PC + 4
+	logic [31:0] pc4;
+	
+	// Modification: pcEn added to the design
 	assign pc4 = pcEn ? (pc + 4): pc;
 
 	always_ff @(posedge clk) begin
+	
+	// Modification: reset added to the design	
 	   if(reset == 1'b1) pc <= '0;
-//	   else if (pcEn) begin
-       else if (stall_s1_s2) 
-            pc <= pc;
-                
-        //////////////////////////////////////////
-        // Chnages made: Harsh Momaya
-        // 3/10/2017- 3:22 PM
-        //////////////////////////////////////////	
-        else if (pcsrc == 1'b1) begin
+       else if (stall_s1_s2) pc <= pc;
+       else if (pcsrc == 1'b1) begin
             if (baddr_s4 == '0) pc <= baddr_s4;
             else pc <= baddr_s4 - 3'd4;
-        end
-        else if (jump_s4 == 1'b1) begin
+       end
+       else if (jump_s4 == 1'b1) begin
             if (jaddr_s4 == '0) pc <= jaddr_s4;
             else pc <= jaddr_s4 - 3'd4; 
-        end
-        else
-            pc <= pc4;
-        end
+       end
+       else pc <= pc4;
+    end
         
-//        else pc <= pc;
-//     end
-     
+		
 	// pass PC + 4 to stage 2
 	logic [31:0] pc4_s2;
 	regr #(.N(32)) regr_pc4_s2(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
 						.in(pc4), .out(pc4_s2));
 
-						
+	
+	// Modification: Signals for checker unit via interface	
 	always_ff @(posedge clk)
 		begin
 			B.jump_addr <= jaddr_s3;
 			B.branch_addr <= baddr_s3;
 		end
 		
-	// instruction memory
-//	logic [31:0] inst;
+
 	logic [31:0] inst_s2;
-//	im #(.NMEM(NMEM_T))
-////	.IM_DATA(IM_DATA))
-//		im1(.clk(clk), .addr(pc), .data(inst));
-    
-//    regr #(.N(32)) regr_im_s2(.clk(clk),
-//						.hold(stall_s1_s2), .clear(flush_s1),
-//						.in(inst), .out(inst_temp));
+
 						
 	regr #(.N(32)) regr_im_s1(.clk(clk),
 						.hold(stall_s1_s2), .clear(flush_s1),
 						.in(inst), .out(inst_s2));
 
-	// }}}
 
-    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+	//
 	// stage 2, ID (decode)
-    ////////////////////////////////////////////////////////////////////////////
-	// decode instruction
+	//
+    ////////////////////////////////////////////////////////////////////////////////
+
 	
 	logic [5:0]  opcode;
 	logic [4:0]  rs;
@@ -186,7 +199,6 @@ module cpu
 	logic [4:0]  shamt;
 	logic [31:0] jaddr_s2;
 	logic [31:0] seimm;  // sign extended immediate
-	//
 	assign opcode   = inst_s2[31:26];
 	assign rs       = inst_s2[25:21];
 	assign rt       = inst_s2[20:16];
@@ -197,7 +209,6 @@ module cpu
 	assign seimm 	= {{16{inst_s2[15]}}, inst_s2[15:0]};
 
 	// register memory
-//	logic [31:0] data1, data2;
 	regm regm1(.clk(clk), .read1(rs), .read2(rt),
 			.data1(data1), .data2(data2),
 			.regwrite(regwrite_s5), .wrreg(wrreg_s5),
@@ -209,7 +220,6 @@ module cpu
 				.in(rs), .out(rs_s3));
 
 	// transfer register data to stage 3
-//	logic [31:0]	data1_s3, data2_s3;
 	regr #(.N(64)) reg_s2_mem(.clk(clk), .clear(flush_s2), .hold(stall_s1_s2),
 				.in({data1, data2}),
 				.out({data1_s3, data2_s3}));
@@ -228,9 +238,12 @@ module cpu
 	regr #(.N(32)) reg_pc4_s2(.clk(clk), .clear(1'b0), .hold(stall_s1_s2),
 						.in(pc4_s2), .out(pc4_s3));
     
-    ///////////////////////////////////////////////////////////////////////////////////
+	
+    //////////////////////////////////////////////////////////////////////////////////////
+	//
 	// control (opcode -> ...)
-	///////////////////////////////////////////////////////////////////////////////////
+	//
+	//////////////////////////////////////////////////////////////////////////////////////
 	
 	logic		regdst;
 	logic		branch_eq_s2;
@@ -243,7 +256,8 @@ module cpu
 	logic		alusrc;
 	logic		jump_s2;
 	logic [1:0] forward_b;
-	//
+	
+	// control logic
 	control ctl1(.opcode(opcode), .regdst(regdst),
 				.branch_eq(branch_eq_s2), .branch_ne(branch_ne_s2),
 				.memread(memread),
@@ -251,15 +265,14 @@ module cpu
 				.memwrite(memwrite), .alusrc(alusrc),
 				.regwrite(regwrite), .jump(jump_s2));
 
-	// shift left, seimm
+	
 	logic [31:0] seimm_sl2;
 	assign seimm_sl2 = {seimm[29:0], 2'b0};  // shift left 2 bits
 	// branch address
 	logic [31:0] baddr_s2;
-	// Changes
 	assign baddr_s2 = seimm_sl2;
-//	assign baddr_s2 = pc4_s2 + seimm_sl2;
 
+	
 	// transfer the control signals to stage 3
 	logic		regdst_s3;
 	logic		memread_s3;
@@ -268,6 +281,8 @@ module cpu
 	logic [1:0]	aluop_s3;
 	logic		regwrite_s3;
 	logic		alusrc_s3;
+	
+	
 	// A bubble is inserted by setting all the control signals
 	// to zero (stall_s1_s2).
 	regr #(.N(8)) reg_s2_control(.clk(clk), .clear(stall_s1_s2), .hold(1'b0),
@@ -292,16 +307,19 @@ module cpu
 	
 	regr #(.N(32)) reg_jaddr_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in(jaddr_s2), .out(jaddr_s3));
-	// }}}
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-	// {{{ stage 3, EX (execute)
+	//
+	// stage 3, EX (execute)
+	//
     /////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
 	// pass through some control signals to stage 4
 	logic regwrite_s4;
 	logic memtoreg_s4;
-//	logic memread_s4;
-//	logic memwrite_s4;
+
 
 	regr #(.N(4)) reg_s3(.clk(clk), .clear(flush_s2), .hold(1'b0),
 				.in({regwrite_s3, memtoreg_s3, memread_s3,
@@ -311,17 +329,16 @@ module cpu
 
 	// ALU
 	// second ALU input can come from an immediate value or data
-//	logic [31:0] alusrc_data2;
 	assign alusrc_data2 = (alusrc_s3) ? seimm_s3 : fw_data2_s3;
-	// ALU control
-//	logic [5:0] aluctl;
-//	logic [5:0] funct;
 	assign funct = seimm_s3[5:0];
+	
+	// ALU control logic
 	alu_control alu_ctl1(.funct(funct), .aluop(aluop_s3), .aluctl(aluctl));
-	// ALU
-	logic [31:0]	alurslt;
 	
 	
+	logic [31:0] alurslt;
+	
+	// logic to forward data based on forward control signal
 	always_comb
 	    if (reset == 1'b1) fw_data1_s3 = '0;
 	    else begin
@@ -331,7 +348,8 @@ module cpu
 		 default: fw_data1_s3 = data1_s3;
 		endcase
 	   end
-	   
+	
+	// Modification: Signals for checker unit via interface		
 	always_ff @(posedge clk) begin
 	   B.rs_value <= fw_data1_s3;
 	   B.rt_value <= alusrc_data2;
@@ -344,16 +362,14 @@ module cpu
 	regr #(.N(1)) reg_zero_s3_s4(.clk(clk), .clear(1'b0), .hold(1'b0),
 					.in(zero_s3), .out(zero_s4));
 
+					
 	// pass ALU result and zero to stage 4
-	
 	regr #(.N(32)) reg_alurslt(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in({alurslt}),
 				.out({alurslt_s4}));
 
+				
 	// pass data2 to stage 4
-//	logic [31:0] data2_s4;
-	
-	
 	always_comb
 	    if (reset == 1'b1) fw_data2_s3 = '0;
 	    else begin
@@ -371,6 +387,7 @@ module cpu
 	logic [4:0]	wrreg;
 	logic [4:0]	wrreg_s4;
 	assign wrreg = (regdst_s3) ? rd_s3 : rt_s3;
+	
 	// pass to stage 4
 	regr #(.N(5)) reg_wrreg(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(wrreg), .out(wrreg_s4));
@@ -392,13 +409,16 @@ module cpu
 	
 	regr #(.N(32)) reg_jaddr_s4(.clk(clk), .clear(flush_s3), .hold(1'b0),
 				.in(jaddr_s3), .out(jaddr_s4));
-	// }}}
-    
-    //////////////////////////////////////////////////////////////////////
-	// {{{ stage 4, MEM (memory)
-    //////////////////////////////////////////////////////////////////////
-	// pass regwrite and memtoreg to stage 5
 	
+    
+    ///////////////////////////////////////////////////////////////////////////////
+	//
+	// stage 4, MEM (memory)
+	//
+    //////////////////////////////////////////////////////////////////////////////
+	
+	
+	// pass regwrite and memtoreg to stage 5
 	logic memtoreg_s5;
 	regr #(.N(2)) reg_regwrite_s4(.clk(clk), .clear(1'b0), .hold(1'b0),
 				.in({regwrite_s4, memtoreg_s4}),
@@ -409,13 +429,13 @@ module cpu
 	dm dm1(.clk(clk), .addr(alurslt_s4[8:2]), .rd(memread_s4), .wr(memwrite_s4),
 			.wdata(data2_s4), .rdata(rdata));
 	
+	
+	// Modification: Signals for checker unit via interface	
 	always_ff @(posedge clk) begin
 	   B.rd_value <= alurslt;
 	   B.lw_data <= rdata;
-	   $display("Alurst: %x", B.rd_value);
-	   $display("lw_data in cpu: %x", B.lw_data);
-	   $display("rdata in cpu: %x", rdata);
 	end
+	
 	// pass read data to stage 5
 	logic [31:0] rdata_s5;
 	regr #(.N(32)) reg_rdata_s4(.clk(clk), .clear(1'b0), .hold(1'b0),
@@ -434,8 +454,8 @@ module cpu
 				.in(wrreg_s4),
 				.out(wrreg_s5));
 
+				
 	// branch
-	
 	always_comb 
 	begin
 	    if (reset == 1'b1) pcsrc <= 1'b0;
@@ -447,22 +467,15 @@ module cpu
 		endcase
 	   end
 	end
-	// }}}
-			
-	// {{{ stage 5, WB (write back)
-
+	
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// stage 5, WB (write back)
+	//
+	/////////////////////////////////////////////////////////////////////////////////////////////
 	
 	assign wrdata_s5 = (memtoreg_s5 == 1'b1) ? rdata_s5 : alurslt_s5;
-
-	// }}}
-
-	// {{{ forwarding
-
-	// stage 3 (MEM) -> stage 2 (EX)
-	// stage 4 (WB) -> stage 2 (EX)
-
-	
-	
 	
 	always_comb 
 	begin
@@ -486,26 +499,13 @@ module cpu
 		end else
 			forward_b <= 2'd0;  // no forwarding
 	end
-	// }}}
 
-	// {{{ load use data hazard detection, signal stall
-
-	/* If an operation in stage 4 (MEM) loads from memory (e.g. lw)
-	 * and the operation in stage 3 (EX) depends on this value,
-	 * a stall must be performed.  The memory read cannot 
-	 * be forwarded because memory access is too slow.  It can
-	 * be forwarded from stage 5 (WB) after a stall.
-	 *
-	 *   lw $1, 16($10)  ; I-type, rt_s3 = $1, memread_s3 = 1
-	 *   sw $1, 32($12)  ; I-type, rt_s2 = $1, memread_s2 = 0
-	 *
-	 *   lw $1, 16($3)  ; I-type, rt_s3 = $1, memread_s3 = 1
-	 *   sw $2, 32($1)  ; I-type, rt_s2 = $2, rs_s2 = $1, memread_s2 = 0
-	 *
-	 *   lw  $1, 16($3)  ; I-type, rt_s3 = $1, memread_s3 = 1
-	 *   add $2, $1, $1  ; R-type, rs_s2 = $1, rt_s2 = $1, memread_s2 = 0
-	 */
 	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	//	Stall logic
+	//
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	always_comb 
 	begin
 		if (reset == 1'b1) stall_s1_s2 = 1'b0;
@@ -516,8 +516,6 @@ module cpu
 		else
 			stall_s1_s2 = 1'b0;  // no stall
 	end
-	// }}}
 
 endmodule
 
-// vim:foldmethod=marker
