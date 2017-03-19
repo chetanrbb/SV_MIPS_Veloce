@@ -1,6 +1,7 @@
 `timescale 1ns / 10ps
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// checker.sv: This module is responsible for verifying the correctness of the operations performed by cpu. 	
+// checker.sv: This module is responsible for verifying the correctness of the operations performed by cpu.
+// ECE 571	|	Portland State University 	
 // Engineer: Daksh Dharod
 //			 Harsh Momaya
 //			 Chetan Bornarkar
