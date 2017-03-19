@@ -1,30 +1,33 @@
 `timescale 1ns / 10ps
-/*
- * Data Memory.
- *
- * 32-bit data with a 7 bit address (128 entries).
- *
- * The read and write operations operate somewhat independently.
- *
- * Any time the read signal (rd) is high the data stored at the
- * given address (addr) will be placed on 'rdata'.
- *
- * Any time the write signal (wr) is high the data on 'wdata' will
- * be stored at the given address (addr).
- * 
- * If a simultaneous read/write is performed the data written
- * can be immediately read out.
- */
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// dm.sv: Data memory of cpu
+// ECE 571	|	Portland State University
+// Source: https://github.com/jmahler/mips-cpu 	
+// Engineer: Daksh Dharod
+//			 Harsh Momaya
+//			 Chetan Bornarkar
+// 
+// Create Date: 03/06/2017
+//
+// Description: 
+// 1. Data is asyncronously read from memory.
+// 2. Data is writen on clock edge based on address.
+// 3. Memory is implemented as unpacked array.
+//
+// No modifications
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
 
 `ifndef _dm
 `define _dm
 
 module dm(
 		input logic			clk,
-		input logic	[6:0]	addr,
+		input logic	 [6:0]	addr,
 		input logic			rd, wr,
-		input logic 	[31:0]	wdata,
-		output logic	[31:0]	rdata);
+		input logic  [31:0]	wdata,
+		output logic [31:0]	rdata);
 
 	reg [31:0] mem [0:127];  // 32-bit memory with 128 entries
 
