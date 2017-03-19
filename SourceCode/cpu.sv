@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	cpu.sv - CPU top module which integrates all modules
 //	ECE 571	| Portland State University
 //	Date: 03/18/2017
@@ -6,26 +6,28 @@
 //				Daksh Dhaord
 //				Harsh Momaya
 //
-//	Description:
-//	Five stage MIPS CPU
+//	Description: Five stage MIPS CPU and it consists of the following stages:
+//				 	1. Fetch 
+//				 	2.	Decode
+//				 	3. Execute
+//				 	4. Memory
+//				 	5. Writeback
 //
-// 	Many variables (wires) pass through several stages.
-// 	The naming convention used for each stage is
-// 	accomplished by appending the stage number (_s<num>).
-// 	For example the variable named "data" which is
-// 	in stage 2 and stage 3 would be named as follows.
+//				CPU module consists of instantiation of the following modules:
+//					1. control 			- Generate control signals
+//					2. dm	   			- Data memory having 128 locations with each location storing 32 bits
+//					3. alu_control		- responsible for generating control signals for ALU
+//					4. regm		 		- Register memory
+//					5. regr				- Pipeline register
+//					6. alu				- This unit performs arithmetic and logical operations.
+//					7. AluCtrlSig_pkg	- It is a package unit which consists of typedefs and enums  	 
 //
-// 	logic data_s2;
-// 	logic data_s3;
-//	
-// 	If the stage number is omitted it is assumed to
-// 	be at the stage at which the variable is first
-// 	established.
 //	 
 //	Modifications:
 //	1.	Control added to PC with the help of pcEn signal
-//	2.	Extracted internal cpu signals for checker unit with the help of interface.
-
+//	2.	Reset functionality added
+//	3.	Extracted internal cpu signals for checker unit with the help of interface.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 `timescale 1ns / 10ps
@@ -40,9 +42,7 @@ module cpu
 		input logic [31:0] inst,
 		output logic [31:0] pc = '0,
 		
-		//////////////////////////////////////////////////////////////////////////
 		//	Interface added to design to extract internal signals of cpu module. 
-		//////////////////////////////////////////////////////////////////////////
 		ccheck.H B,
 		input logic pcEn
 	);
