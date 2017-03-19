@@ -1,11 +1,11 @@
 `timescale 1ns / 10ps
-//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// checker.sv: This module is responsible for verifying the correctness of the operations performed by cpu. 	
 // Engineer: Daksh Dharod
 //			 Harsh Momaya
 //			 Chetan Bornarkar
 // 
-// Create Date: 03/06/2017 08:38:17 PM
-// Module Name: checker
+// Create Date: 03/06/2017
 // 
 // Description: The following is the checker module which is a combination of checker and scoreboard.
 //				The checker replicates the functionality of cpu. It performs all the operations that
@@ -34,7 +34,7 @@
 //									 the source register values are compared and the address is compared. 	
 //									 Based on results, opDone is asserted high or low.
 //
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // importing the package
 import AluCtrlSig_pkg::*;
@@ -86,7 +86,6 @@ module check(
         opcode = inst [31:26];
 		
         if (reset == 1'b1) begin
-//            opcode  <= '1;
             imm     = '1;
             rs      = '1;
             rt      = '1;
@@ -97,9 +96,6 @@ module check(
 		
         else if (pcEn == 1'b1) begin
              rd_dm = 0;
-
-			 
-
 
             unique case (opcode) 
             
@@ -182,9 +178,7 @@ module check(
        end
          
 
-		 // For load instruction, load address is calculated based on source value and immediate address  
-		 always_comb begin
-
+		 // For load instruction, load address is calculated based on source value and immediate address
 		always_comb begin
 
 			if(opcode_2 == LW_op)
@@ -193,8 +187,6 @@ module check(
 			end
 
 		 end
-
-		end
 
        
 		 // pipelining the signals for timing match
