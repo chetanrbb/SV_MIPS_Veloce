@@ -1,4 +1,5 @@
 `timescale 1ns / 10ps
+//////////////////////////////////////////////////////////////////////
 // File Name: regr.sv 
 // Original Source: https://github.com/jmahler/mips-cpu
 // Modified by: Chetan B. | Harsh M. | Daksh D.
@@ -7,10 +8,11 @@
 // regr - register of data that can be held or cleared
 //
 // The regr (register) module can be used to store data in the current
-// cylcle so it will be output on the next cycle.  Signals are also
+// cycle so it will be output on the next cycle.  Signals are also
 // provided to hold the data or clear it.  The hold and clear signals
 // are both synchronous with the clock.
 //
+//////////////////////////////////////////////////////////////////////
 
 `ifndef _regr
 `define _regr
