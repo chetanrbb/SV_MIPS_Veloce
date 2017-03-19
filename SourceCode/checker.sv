@@ -1,7 +1,7 @@
 `timescale 1ns / 10ps
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // checker.sv: This module is responsible for verifying the correctness of the operations performed by cpu. 	
-// Engineer: Daksh Dharod
+// Engineer: Daksh Dharod   
 //			 Harsh Momaya
 //			 Chetan Bornarkar
 // 
