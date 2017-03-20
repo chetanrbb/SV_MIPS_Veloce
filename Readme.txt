@@ -21,7 +21,14 @@ Enironment module files: TBX Mode Source Codes:
 1. CPU_tb_dpi.sv - The file consists of the methods which are used to read the instructions and the result of the operaitons. This data is sent to the testbench.cxx file where it is logged. 
 2. testbench.cxx - This file is the HVL file of the design. This file sends the instruction as per the PC requested. This file then receives the result of the operaiton and stores/logs it in the "Functional coverage" file. 
 3. FunctionalCoverage: This file has the logs of the result of each instruction. The file shows if the instruction issued was successful or not. It shows the total number of instructions issued and their results. (In the functional coverage file there are two results that are shown. One is correct operaiton and the one is for error operaiton i.e. intentional error was inserted in the design for XOR instruction.) 
- 
+
+Complete Design Simulation: This folder consists of all the files required for simulation.
+1. Checker module in this folder is different as compared to the one in the SourceCode folder. Rest of all the design files are same.
+2. This folder also consists of:
+2.1. top_module: This is the top module which instantiates cpu, checker interface and checker module
+2.2. testbench_cpu: This is the testbench module which drives top_module to generate results on Questa Simulator.
+3. Simulation statistics are included in the presentation and was generated using "simstates" command on Questa command line. 
+
 Unit Testing: The following folder consists of the files which are designed and directed to check the individual modules of the design. 
 
 Test Patterns: This folder consists of the files which generates instructions and its machine code. 
